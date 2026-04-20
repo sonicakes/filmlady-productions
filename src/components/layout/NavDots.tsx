@@ -1,3 +1,4 @@
+import React from 'react'
 import clsx from 'clsx'
 
 // Labels shown on dot hover — one per panel in order

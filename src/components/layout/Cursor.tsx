@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 export default function Cursor() {
   const reticleRef = useRef<HTMLDivElement>(null)

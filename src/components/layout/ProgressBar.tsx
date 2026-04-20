@@ -1,4 +1,4 @@
-import { forwardRef } from 'react'
+import React, { forwardRef } from 'react'
 
 // forwardRef lets the parent pass a ref into this component.
 // The useHorizontalScroll hook holds that ref and updates style.width

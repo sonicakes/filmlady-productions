@@ -35,10 +35,18 @@
    ───────────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
+html {
+  font-size: 112.5%; /* 18px base — scales all rem values site-wide */
+}
+
 html, body {
-  overflow: hidden;       /* Required for GSAP's pin to work correctly */
+  /* overflow-x: hidden prevents a horizontal scrollbar from the wide track.
+     We must NOT set overflow-y: hidden — GSAP ScrollTrigger needs the page
+     to scroll vertically so it can map that progress to horizontal movement.
+     GSAP's pin adds padding-bottom to create the required scroll space. */
+  overflow-x: hidden;
   background: #0a0704;
-  cursor: none;           /* Hide OS cursor — we render our own gold reticle */
+  cursor: none;
   -webkit-font-smoothing: antialiased;
 }
 

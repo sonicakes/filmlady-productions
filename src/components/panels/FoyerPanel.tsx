@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 interface Props {
   onEnter: () => void
@@ -91,6 +91,24 @@ export default function FoyerPanel({ onEnter }: Props) {
       {/* Particle canvas — sits behind everything (z-0) */}
       <canvas ref={canvasRef} className="absolute inset-0 z-0" />
 
+      {/* Decorative Cyrillic words */}
+      <span
+        className="parallax-word absolute font-cormorant font-light pointer-events-none select-none whitespace-nowrap
+          text-[11rem] text-gold/[0.025] uppercase [-webkit-text-stroke:1px_rgba(201,168,76,0.035)]"
+        data-speed="0.25"
+        style={{ top: '6%', left: '-2%' }}
+      >
+        дама
+      </span>
+      <span
+        className="parallax-word absolute font-cormorant font-light pointer-events-none select-none whitespace-nowrap
+          text-[6rem] text-gold/[0.04] [-webkit-text-stroke:1px_rgba(201,168,76,0.05)]"
+        data-speed="0.5"
+        style={{ bottom: '-3%', right: '5%' }}
+      >
+        КИНО
+      </span>
+
       {/* Foyer content — z-10 so it sits above the canvas */}
       <div className="relative z-10 text-center flex flex-col items-center gap-6">
 
@@ -148,18 +166,7 @@ export default function FoyerPanel({ onEnter }: Props) {
         </button>
       </div>
 
-      {/* Scroll hint — fades when user starts scrolling (handled in index.tsx) */}
-      <div
-        id="scroll-hint"
-        className="absolute bottom-10 left-1/2 -translate-x-1/2
-          font-cinzel text-[0.55rem] tracking-[0.35em] text-gold-dim
-          flex items-center gap-4 transition-opacity duration-1000
-          hidden md:flex"
-      >
-        <span className="block w-7 h-px bg-gold-dim" />
-        SCROLL TO ENTER THE COURT
-        <span className="block w-7 h-px bg-gold-dim" />
-      </div>
+      {/* Scroll hint lives in index.tsx as a fixed overlay — not here */}
     </section>
   )
 }
