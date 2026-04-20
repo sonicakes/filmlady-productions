@@ -1,0 +1,111 @@
+/* ─────────────────────────────────────────────────────────────────────
+   Tailwind 4: a single @import replaces the old three-line
+   @tailwind base / components / utilities pattern.
+   ───────────────────────────────────────────────────────────────────── */
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────────────
+   @theme is Tailwind 4's design token system.
+   Every token declared here automatically generates utility classes:
+     --color-gold  →  text-gold, bg-gold, border-gold, fill-gold, etc.
+     --font-cinzel →  font-cinzel
+   You never need to touch a tailwind.config.ts — this file IS the config.
+   ───────────────────────────────────────────────────────────────────── */
+@theme {
+  /* Colours */
+  --color-void:           #0a0704;
+  --color-void-2:         #130e09;
+  --color-void-3:         #1c1510;
+  --color-gold:           #c9a84c;
+  --color-gold-light:     #e8cc7a;
+  --color-gold-dim:       #8a6e2a;
+  --color-crimson:        #6b1a1a;
+  --color-crimson-bright: #9b2a2a;
+  --color-parchment:      #e8dfc8;
+  --color-parchment-dim:  #b8af98;
+
+  /* Font families */
+  --font-cormorant: 'Cormorant Garamond', serif;
+  --font-cinzel:    'Cinzel', serif;
+  --font-garamond:  'EB Garamond', serif;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Base resets
+   ───────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  overflow: hidden;       /* Required for GSAP's pin to work correctly */
+  background: #0a0704;
+  cursor: none;           /* Hide OS cursor — we render our own gold reticle */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Mobile overrides — panels stack vertically on narrow viewports.
+   GSAP horizontal scroll is also disabled in the hook at this breakpoint.
+   ───────────────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  html, body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    cursor: auto;
+  }
+
+  /* Override the inline width set by the horizontal scroll hook */
+  .scroll-track {
+    width: 100% !important;
+    flex-direction: column !important;
+  }
+
+  /* Let the container scroll normally on mobile */
+  .scroll-container {
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Foyer entry animations — staggered fade-ups, CSS-only.
+   Using CSS here (not Framer Motion) because these fire once on load
+   and don't need any JS logic. Each class corresponds to a delay tier.
+   ───────────────────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.anim-1 { opacity: 0; animation: fadeUp 1.2s ease 0.3s  forwards; }
+.anim-2 { opacity: 0; animation: fadeUp 1s   ease 0.7s  forwards; }
+.anim-3 { opacity: 0; animation: fadeUp 1s   ease 0.9s  forwards; }
+.anim-4 { opacity: 0; animation: fadeUp 1s   ease 1.1s  forwards; }
+.anim-5 { opacity: 0; animation: fadeUp 1s   ease 1.3s  forwards; }
+.anim-6 { opacity: 0; animation: fadeUp 1s   ease 1.5s  forwards; }
+
+/* ─────────────────────────────────────────────────────────────────────
+   Reusable decorative elements
+   ───────────────────────────────────────────────────────────────────── */
+.gold-rule {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #8a6e2a, transparent);
+  margin: 1.5rem 0;
+}
+
+/* Trinity card hover — animated left border grows upward */
+.trinity-card {
+  position: relative;
+}
+.trinity-card::before {
+  content: '';
+  position: absolute;
+  left: -1px; top: 0;
+  width: 1px; height: 0;
+  background: #c9a84c;
+  transition: height 0.4s ease;
+}
+.trinity-card:hover::before { height: 100%; }
+
+/* Project link arrow nudge */
+.project-link:hover { gap: 1.2rem; }
