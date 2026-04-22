@@ -1,9 +1,20 @@
 import React from 'react'
+import CrownIcon from '../layout/CrownIcon'
+
+function toRoman(n: number): string {
+  const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1]
+  const syms = ['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I']
+  let result = ''
+  for (let i = 0; i < vals.length; i++) {
+    while (n >= vals[i]) { result += syms[i]; n -= vals[i] }
+  }
+  return result
+}
 
 const LINKS = [
   {
     label: 'GitHub',
-    href:  'https://bsky.app/profile/filmladyroyal.bsky.social',
+    href:  'https://github.com/sonicakes',
     sub:   '@sonicakes',
   },
   {
@@ -50,7 +61,7 @@ export default function FooterPanel() {
       {/* Section counter */}
       <div className="absolute top-10 right-12 font-cinzel text-[0.65rem]
         tracking-[0.25em] text-gold-dim flex flex-col items-center gap-1">
-        <span className="text-gold text-[0.8rem]">♛</span>
+        <CrownIcon className="w-4 h-3" />
         <span>КОДА</span>
       </div>
 
@@ -72,10 +83,9 @@ export default function FooterPanel() {
         </svg>
 
         <div>
-          <h2 className="font-cormorant font-light text-parchment leading-[1.1]"
-            style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}>
-            Film Lady<br />
-            <em className="italic text-gold">Productions</em>
+          <h2 className="font-cormorant font-light text-parchment leading-none flex flex-col items-center gap-1">
+            <span style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>Film Lady</span>
+            <span className="italic text-gold" style={{ fontSize: 'clamp(0.75rem, 1.2vw, 1rem)', letterSpacing: '0.45em' }}>productions</span>
           </h2>
         </div>
 
@@ -121,7 +131,7 @@ export default function FooterPanel() {
         </div>
 
         <p className="font-cinzel text-[0.55rem] tracking-[0.3em] text-gold-dim/60">
-          © {new Date().getFullYear()} Film Lady Productions · All rights reserved
+          © {toRoman(new Date().getFullYear())} Film Lady Productions · All rights reserved
         </p>
       </div>
     </section>

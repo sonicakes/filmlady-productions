@@ -1,12 +1,11 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
+import { motion } from 'framer-motion'
 import { StaticImage } from 'gatsby-plugin-image'
-import type { Project } from '../../types'
+import type { Project, ProjectSample } from '../../types'
+import CrownIcon from '../layout/CrownIcon'
 
 // ─── Project image ────────────────────────────────────────────────────────────
-// StaticImage src must be a string literal — Gatsby parses these paths at
-// build time to generate optimised WebP variants and srcSets. A variable path
-// would fail. Each imageType gets its own explicit branch as a result.
 function ProjectImage({ imageType }: { imageType: Project['imageType'] }) {
   if (imageType === 'canvas-blog') {
     return (
@@ -32,7 +31,6 @@ function ProjectImage({ imageType }: { imageType: Project['imageType'] }) {
       />
     )
   }
-  // sim-mock
   return (
     <StaticImage
       src="../../images/royal-simulator-poster.png"
@@ -42,6 +40,392 @@ function ProjectImage({ imageType }: { imageType: Project['imageType'] }) {
       objectPosition="center top"
       className="w-full h-full"
     />
+  )
+}
+
+// ─── Shared close button ──────────────────────────────────────────────────────
+function CloseBtn({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      data-hoverable
+      aria-label="Close"
+      className="absolute top-4 right-4 font-cinzel text-[0.6rem] tracking-[0.2em]
+        text-gold-dim hover:text-gold transition-colors duration-200"
+    >
+      ✕
+    </button>
+  )
+}
+
+// ─── Quote overlay (Blog) — newspaper clippings ───────────────────────────────
+const CLIP_ROTATIONS = ['-2deg', '1.8deg']
+const CLIP_OFFSETS   = ['-6px',  '6px']
+
+function Clipping({ movie, excerpt, quote, attribution, rotation, offsetX, zIndex }: {
+  movie: string; excerpt: string; quote: string; attribution: string
+  rotation: string; offsetX: string; zIndex: number
+}) {
+  return (
+    <div
+      className="relative bg-parchment px-5 pt-4 pb-5 w-full
+        shadow-[3px_6px_20px_rgba(0,0,0,0.55)]"
+      style={{ transform: `rotate(${rotation}) translateX(${offsetX})`, zIndex }}
+    >
+      {/* Movie stamp — absolute overlay, inset so it stays within card */}
+      <div
+        className="absolute top-3 right-3 w-11 h-11 rounded-full
+          border border-dashed border-crimson/30
+          flex items-center justify-center text-center
+          bg-parchment"
+        style={{ transform: 'rotate(15deg)' }}
+      >
+        <span className="font-cinzel text-crimson leading-tight px-1"
+          style={{ fontSize: '9px', letterSpacing: '0.06em', fontWeight: 700 }}>
+          {movie}
+        </span>
+      </div>
+
+      {/* Newspaper header */}
+      <div className="border-t-[2.5px] border-b border-[#1a1209]/50 pt-[3px] pb-[5px] mb-3">
+        <p className="font-cinzel text-[0.38rem] tracking-[0.45em] text-[#1a1209]/50 uppercase">
+          The Cinefile Blog · Est. 2025
+        </p>
+      </div>
+
+      {/* Excerpt */}
+      <p className="font-garamond text-[#1a1209] text-[0.75rem] leading-[1.75] mb-3">
+        {excerpt}
+      </p>
+
+      {/* Pull quote */}
+      <blockquote className="border-l-[2px] border-[#1a1209]/35 pl-3 my-3">
+        <p className="font-cormorant italic text-[#1a1209] text-[0.88rem] leading-[1.6]">
+          &ldquo;{quote}&rdquo;
+        </p>
+      </blockquote>
+
+      {/* Byline */}
+      <p className="font-cinzel text-[0.38rem] tracking-[0.2em] text-[#1a1209]/50 mt-3">
+        {attribution}
+      </p>
+    </div>
+  )
+}
+
+function QuoteOverlay({
+  sample, open, onClose,
+}: { sample: Extract<ProjectSample, { type: 'quote' }>; open: boolean; onClose: () => void }) {
+  return (
+    <div
+      className="absolute inset-0 z-20 bg-void/97 flex flex-col justify-center
+        gap-0 px-6 py-8 transition-opacity duration-500 overflow-y-auto"
+      style={{ opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none' }}
+    >
+      <CloseBtn onClick={onClose} />
+      {sample.clippings.map((clip, i) => (
+        <div key={i} style={{ marginTop: i > 0 ? '-18px' : 0 }}>
+          <Clipping
+            movie={clip.movie}
+            excerpt={clip.excerpt}
+            quote={clip.quote}
+            attribution={clip.attribution}
+            rotation={CLIP_ROTATIONS[i] ?? '0deg'}
+            offsetX={CLIP_OFFSETS[i]   ?? '0px'}
+            zIndex={i + 1}
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── Audio overlay (Podcast) ──────────────────────────────────────────────────
+const BAR_PEAKS = [0.45, 0.8, 1, 0.65, 0.9, 0.55, 0.75, 0.4, 0.85, 0.6, 0.95, 0.5]
+
+function AudioOverlay({
+  sample, open, onClose,
+}: { sample: Extract<ProjectSample, { type: 'audio' }>; open: boolean; onClose: () => void }) {
+  const audioRef    = useRef<HTMLAudioElement>(null)
+  const progressRef = useRef<HTMLDivElement>(null)
+  const timeRef     = useRef<HTMLSpanElement>(null)
+  const [playing, setPlaying] = useState(false)
+
+  const fmt = (s: number) =>
+    `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+    const onUpdate = () => {
+      const pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0
+      if (progressRef.current) progressRef.current.style.width = `${pct}%`
+      if (timeRef.current)
+        timeRef.current.textContent = `${fmt(audio.currentTime)} / ${fmt(audio.duration || 0)}`
+    }
+    const onEnded = () => setPlaying(false)
+    audio.addEventListener('timeupdate', onUpdate)
+    audio.addEventListener('ended', onEnded)
+    return () => {
+      audio.removeEventListener('timeupdate', onUpdate)
+      audio.removeEventListener('ended', onEnded)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!open && audioRef.current) {
+      audioRef.current.pause()
+      setPlaying(false)
+    }
+  }, [open])
+
+  const toggle = () => {
+    const audio = audioRef.current
+    if (!audio) return
+    if (playing) { audio.pause(); setPlaying(false) }
+    else         { void audio.play(); setPlaying(true) }
+  }
+
+  return (
+    <div
+      className="absolute inset-0 z-20 bg-void/97 flex flex-col items-center
+        justify-center gap-5 px-8 py-10 transition-opacity duration-500"
+      style={{ opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none' }}
+    >
+      <CloseBtn onClick={onClose} />
+      <audio ref={audioRef} src={sample.src} preload="metadata" />
+
+      {/* Track label */}
+      <p className="font-cinzel text-[0.5rem] tracking-[0.35em] text-gold-dim text-center">
+        {sample.label}
+      </p>
+
+      {/* Decorative SVG waveform — static art behind bars */}
+      <div className="relative w-full flex flex-col items-center gap-3">
+        <svg
+          viewBox="0 0 120 24"
+          className="w-full opacity-[0.12]"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 12 C4 4,8 20,12 12 C16 4,20 20,24 12 C28 4,32 20,36 12
+               C40 4,44 20,48 12 C52 4,56 20,60 12 C64 4,68 20,72 12
+               C76 4,80 20,84 12 C88 4,92 20,96 12 C100 4,104 20,108 12
+               C112 4,116 20,120 12"
+            stroke="#c9a84c"
+            strokeWidth="1.5"
+            fill="none"
+          />
+          <path
+            d="M0 12 C3 7,7 17,12 12 C17 7,21 17,26 12 C31 7,35 17,40 12
+               C45 7,49 17,54 12 C59 7,63 17,68 12 C73 7,77 17,82 12
+               C87 7,91 17,96 12 C101 7,105 17,110 12 C115 7,118 17,120 12"
+            stroke="#c9a84c"
+            strokeWidth="0.75"
+            fill="none"
+            opacity="0.6"
+          />
+        </svg>
+
+        {/* Animated EQ bars */}
+        <div className="flex items-end gap-[4px]" style={{ height: '44px' }}>
+          {BAR_PEAKS.map((peak, i) => (
+            <motion.div
+              key={i}
+              className="rounded-full"
+              style={{
+                width: '3px',
+                height: '44px',
+                background: 'rgba(201,168,76,0.55)',
+                originY: 1,
+              }}
+              animate={{ scaleY: playing ? peak : 0.08 }}
+              transition={
+                playing
+                  ? { duration: 0.55 + i * 0.06, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }
+                  : { duration: 0.4 }
+              }
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Play / Pause */}
+      <button
+        onClick={toggle}
+        data-hoverable
+        aria-label={playing ? 'Pause' : 'Play'}
+        className="w-12 h-12 flex items-center justify-center border border-gold/40
+          hover:border-gold hover:bg-gold/10 transition-all duration-300"
+      >
+        {playing ? (
+          <svg viewBox="0 0 20 20" className="w-4 h-4 fill-gold">
+            <rect x="4" y="3" width="4" height="14" />
+            <rect x="12" y="3" width="4" height="14" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 20 20" className="w-4 h-4 fill-gold" style={{ marginLeft: '2px' }}>
+            <polygon points="4,2 18,10 4,18" />
+          </svg>
+        )}
+      </button>
+
+      {/* Progress track */}
+      <div className="w-full flex flex-col gap-2">
+        <div className="relative w-full h-px bg-gold/20">
+          <div
+            ref={progressRef}
+            className="absolute left-0 top-0 h-px bg-gold"
+            style={{ width: '0%' }}
+          />
+        </div>
+        <span
+          ref={timeRef}
+          className="font-cinzel text-[0.45rem] tracking-[0.2em] text-gold-dim self-end"
+        >
+          0:00 / 0:00
+        </span>
+      </div>
+    </div>
+  )
+}
+
+// ─── Spin wheel overlay (Simulator) ──────────────────────────────────────────
+type WheelScenario = { label: string; fate: string }
+
+function SpinWheelOverlay({
+  sample, open, onClose,
+}: { sample: Extract<ProjectSample, { type: 'scenario' }>; open: boolean; onClose: () => void }) {
+  const { scenarios } = sample
+  const n        = scenarios.length
+  const segAngle = 360 / n
+
+  const [rotation,  setRotation]  = useState(0)
+  const [spinning,  setSpinning]  = useState(false)
+  const [result,    setResult]    = useState<WheelScenario | null>(null)
+
+  const spin = () => {
+    if (spinning) return
+    setResult(null)
+    const targetIndex = Math.floor(Math.random() * n)
+    // Angle where target segment midpoint lands at the top pointer (0°):
+    // segment i occupies [i*segAngle, (i+1)*segAngle]; midpoint = (i+0.5)*segAngle
+    // We need the wheel rotated so that midpoint is at 0° → negate it
+    const targetAngle = 360 - (targetIndex + 0.5) * segAngle
+    const currentMod  = ((rotation % 360) + 360) % 360
+    const diff        = ((targetAngle - currentMod) + 360) % 360
+    const newRotation = rotation + 1440 + diff   // 4+ full spins then land
+    setRotation(newRotation)
+    setSpinning(true)
+    setTimeout(() => {
+      setSpinning(false)
+      setResult(scenarios[targetIndex])
+    }, 3200)
+  }
+
+  // Build SVG wheel segments
+  const degToRad = (d: number) => (d * Math.PI) / 180
+  const segments = scenarios.map((s, i) => {
+    const startRad = degToRad(i * segAngle - 90)
+    const endRad   = degToRad((i + 1) * segAngle - 90)
+    const x1 = 50 + 45 * Math.cos(startRad)
+    const y1 = 50 + 45 * Math.sin(startRad)
+    const x2 = 50 + 45 * Math.cos(endRad)
+    const y2 = 50 + 45 * Math.sin(endRad)
+    const midRad = degToRad((i + 0.5) * segAngle - 90)
+    const tx = 50 + 30 * Math.cos(midRad)
+    const ty = 50 + 30 * Math.sin(midRad)
+    const textRotate = (i + 0.5) * segAngle
+    return { s, i, x1, y1, x2, y2, tx, ty, textRotate }
+  })
+
+  return (
+    <div
+      className="absolute inset-0 z-20 bg-void/97 flex flex-col items-center
+        justify-center gap-4 px-6 py-8 transition-opacity duration-500"
+      style={{ opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none' }}
+    >
+      <CloseBtn onClick={onClose} />
+
+      <p className="font-cinzel text-[0.45rem] tracking-[0.4em] text-gold-dim">
+        SPIN · YOUR · FATE
+      </p>
+
+      {/* Pointer arrow above wheel */}
+      <svg viewBox="0 0 20 10" className="w-5 h-3">
+        <polygon points="10,10 3,0 17,0" fill="rgba(201,168,76,0.8)" />
+      </svg>
+
+      {/* Wheel */}
+      <div
+        className="w-full max-w-[200px] aspect-square"
+        style={{
+          transform:       `rotate(${rotation}deg)`,
+          transformOrigin: 'center center',
+          transition:      spinning
+            ? 'transform 3.2s cubic-bezier(0.15, 0.5, 0.08, 1)'
+            : 'none',
+        }}
+      >
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          {segments.map(({ s, i, x1, y1, x2, y2, tx, ty, textRotate }) => (
+            <g key={i}>
+              <path
+                d={`M 50 50 L ${x1.toFixed(2)} ${y1.toFixed(2)} A 45 45 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`}
+                fill={i % 2 === 0 ? 'rgba(201,168,76,0.1)' : 'rgba(201,168,76,0.04)'}
+                stroke="rgba(201,168,76,0.25)"
+                strokeWidth="0.5"
+              />
+              <text
+                x={tx.toFixed(2)}
+                y={ty.toFixed(2)}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                transform={`rotate(${textRotate.toFixed(1)}, ${tx.toFixed(2)}, ${ty.toFixed(2)})`}
+                style={{
+                  fontSize:      '3.2px',
+                  fontFamily:    'Cinzel, serif',
+                  fill:          'rgba(201,168,76,0.75)',
+                  letterSpacing: '0.2px',
+                }}
+              >
+                {s.label}
+              </text>
+            </g>
+          ))}
+          {/* Rings */}
+          <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(201,168,76,0.4)" strokeWidth="0.75" />
+          <circle cx="50" cy="50" r="6"  fill="rgba(201,168,76,0.12)" stroke="rgba(201,168,76,0.5)" strokeWidth="0.75" />
+          <circle cx="50" cy="50" r="2"  fill="rgba(201,168,76,0.7)" />
+        </svg>
+      </div>
+
+      {/* Fate reveal */}
+      <div
+        className="text-center transition-opacity duration-700 min-h-[3rem] flex flex-col items-center justify-center gap-2"
+        style={{ opacity: result ? 1 : 0 }}
+      >
+        <p className="font-cinzel text-[0.5rem] tracking-[0.35em] text-gold">
+          {result?.label}
+        </p>
+        <p className="font-garamond italic text-parchment-dim text-[0.8rem] leading-[1.7]">
+          {result?.fate}
+        </p>
+      </div>
+
+      {/* Spin button */}
+      <button
+        onClick={spin}
+        disabled={spinning}
+        data-hoverable
+        className="font-cinzel text-[0.5rem] tracking-[0.4em] text-gold
+          border border-gold/40 px-6 py-2
+          hover:bg-gold/10 hover:border-gold transition-all duration-300
+          disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        {result ? 'SPIN AGAIN' : 'SPIN'}
+      </button>
+    </div>
   )
 }
 
@@ -68,8 +452,14 @@ export default function ProjectPanel({ project, isActive }: Props) {
     index, tag, title, titleAccent, format,
     description, tags, link, linkLabel,
     cyrillicWord, cyrillicLabel,
-    imageType, reversed,
+    imageType, reversed, sample, sampleLabel,
   } = project
+
+  const [sampleOpen, setSampleOpen] = useState(false)
+
+  useEffect(() => {
+    if (!isActive) setSampleOpen(false)
+  }, [isActive])
 
   return (
     <section
@@ -81,7 +471,7 @@ export default function ProjectPanel({ project, isActive }: Props) {
       {/* Section counter */}
       <div className="absolute top-10 right-12 font-cinzel text-[0.65rem]
         tracking-[0.25em] text-gold-dim flex flex-col items-center gap-1">
-        <span className="text-gold text-[0.8rem]">♛</span>
+        <CrownIcon className="w-4 h-3" />
         <span>{cyrillicLabel}</span>
       </div>
 
@@ -91,11 +481,7 @@ export default function ProjectPanel({ project, isActive }: Props) {
           pointer-events-none select-none uppercase whitespace-nowrap
           text-[8rem] text-gold/[0.03] [-webkit-text-stroke:1px_rgba(201,168,76,0.04)]"
         data-speed={index === 1 ? '0.4' : index === 2 ? '0.25' : '0.35'}
-        style={
-          reversed
-            ? { bottom: '-1%', left: '-1%' }
-            : { bottom: '-6%', right: '-3%' }
-        }
+        style={reversed ? { bottom: '-1%', left: '-1%' } : { bottom: '-6%', right: '-3%' }}
       >
         {cyrillicWord}
       </span>
@@ -118,44 +504,41 @@ export default function ProjectPanel({ project, isActive }: Props) {
         )}
       >
         {/* ── Image column ── */}
-        <div
-          className={clsx(
-            'relative overflow-hidden aspect-[4/5] max-h-[65vh] group',
-            reversed && 'md:[direction:ltr]',
-          )}
-        >
+        <div className={clsx('relative overflow-hidden aspect-[4/5] max-h-[65vh] group', reversed && 'md:[direction:ltr]')}>
           <ProjectImage imageType={imageType} />
 
-          {/* Curtain — mobile: always gone (scale-y-0).
-               Desktop: covers image until panel is active or hovered. */}
+          {/* Curtain */}
           <div
             className={clsx(
               'absolute inset-0 bg-void origin-top transition-transform duration-700 ease-[cubic-bezier(0.76,0,0.24,1)]',
-              'scale-y-0',                                                   // mobile: hidden
-              !isActive && 'md:scale-y-100 md:group-hover:scale-y-0',        // desktop inactive
+              'scale-y-0',
+              !isActive && 'md:scale-y-100 md:group-hover:scale-y-0',
             )}
           />
 
-          {/* CTA — mobile: always visible. Desktop: fades in on active or hover. */}
+          {/* Sample CTA — replaces the old linkLabel overlay on the image */}
           <div
             className={clsx(
               'absolute inset-0 flex flex-col items-center justify-end p-8 bg-gradient-to-t from-void/90 to-transparent transition-opacity duration-500',
-              'opacity-100',                                                  // mobile: always visible
-              !isActive && 'md:opacity-0 md:group-hover:opacity-100 md:delay-300', // desktop inactive
+              'opacity-100',
+              !isActive && 'md:opacity-0 md:group-hover:opacity-100 md:delay-300',
             )}
           >
-            <a
-              href={link}
-              target={link !== '#' ? '_blank' : undefined}
-              rel="noreferrer"
+            <button
+              onClick={() => setSampleOpen(true)}
               data-hoverable
               className="font-cinzel text-[0.6rem] tracking-[0.4em] text-gold
                 border border-gold-dim px-6 py-2
                 hover:bg-gold/10 hover:border-gold transition-all"
             >
-              {linkLabel} →
-            </a>
+              {sampleLabel} →
+            </button>
           </div>
+
+          {/* Sample overlays — sit above the curtain */}
+          {sample.type === 'quote'    && <QuoteOverlay    sample={sample} open={sampleOpen} onClose={() => setSampleOpen(false)} />}
+          {sample.type === 'audio'    && <AudioOverlay    sample={sample} open={sampleOpen} onClose={() => setSampleOpen(false)} />}
+          {sample.type === 'scenario' && <SpinWheelOverlay sample={sample} open={sampleOpen} onClose={() => setSampleOpen(false)} />}
         </div>
 
         {/* ── Text column ── */}

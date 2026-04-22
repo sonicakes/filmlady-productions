@@ -326,7 +326,7 @@ export interface Project {
   tag:          string         // e.g. 'The Written Word'
   title:        string[]       // split lines, e.g. ['The Cinefile', 'Blog']
   titleAccent:  number         // which line index gets gold italic styling
-  format:       string         // e.g. 'cinefileblog.com · Est. 2024'
+  format:       string         // e.g. 'cinefileblog.com · Est. 2025'
   description:  string
   tags:         string[]       // pill tags
   link:         string         // href
@@ -353,7 +353,7 @@ export const projects: Project[] = [
     tag: 'The Written Word',
     title: ['The Cinefile', 'Blog'],
     titleAccent: 1,
-    format: 'cinefileblog.com · Est. 2024',
+    format: 'cinefileblog.com · Est. 2025',
     description: `Long-form criticism from the exile's desk. Gothic horror,
 prestige cinema, and the films that haunt you — reviewed with forensic
 theatricality and a complete disregard for brevity.`,

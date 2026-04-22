@@ -1,5 +1,6 @@
 import React from 'react'
 import portraitSrc from '../../images/film-lady-portrait.jpg'
+import CrownIcon from '../layout/CrownIcon'
 
 export default function DecreePanel() {
   return (
@@ -8,7 +9,7 @@ export default function DecreePanel() {
       {/* Section counter */}
       <div className="absolute top-10 right-12 font-cinzel text-[0.65rem]
         tracking-[0.25em] text-gold-dim flex flex-col items-center gap-1">
-        <span className="text-gold text-[0.8rem]">♛</span>
+        <CrownIcon className="w-4 h-3" />
         <span>N · УКАЗ</span>
       </div>
 
@@ -72,7 +73,7 @@ export default function DecreePanel() {
           <div className="gold-rule" />
 
           <p className="font-garamond text-[1.05rem] leading-[1.85] text-parchment-dim">
-            Once first in line to the throne of Imperial Russia. Now in exile in the depths of Van Diemen Land.{' '}
+            Once first in line to the throne of Imperial Russia. Now in exile in the depths of Terra Australis.{' '}
             <strong className="text-parchment font-medium">Film Lady Productions</strong>{' '}
             is a creative platform built on the sacred trinity of criticism,
             performance, and obsessive cinephilia.

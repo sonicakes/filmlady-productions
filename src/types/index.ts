@@ -3,6 +3,11 @@
 // Having one interface means TypeScript will catch copy/paste errors
 // across the data file and any component that consumes project data.
 
+export type ProjectSample =
+  | { type: 'quote';    clippings: Array<{ movie: string; excerpt: string; quote: string; attribution: string }> }
+  | { type: 'audio';    src: string;     label: string }
+  | { type: 'scenario'; scenarios: Array<{ label: string; fate: string }> }
+
 export interface Project {
   id:           string                                      // used as React key
   index:        number                                      // 1 | 2 | 3
@@ -18,4 +23,6 @@ export interface Project {
   cyrillicLabel: string                                     // section counter e.g. 'II · БЛОГ'
   imageType:    'canvas-blog' | 'canvas-podcast' | 'sim-mock'
   reversed:     boolean                                     // image on right when true
+  sample:       ProjectSample                               // interactive preview content
+  sampleLabel:  string                                      // sample CTA button text
 }

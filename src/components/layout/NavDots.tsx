@@ -2,7 +2,7 @@ import React from 'react'
 import clsx from 'clsx'
 
 // Labels shown on dot hover — one per panel in order
-const LABELS = ['Foyer', 'Decree', 'Blog', 'Podcast', 'Simulator']
+const LABELS = ['Foyer', 'Decree', 'Blog', 'Podcast', 'Simulator', 'Footer']
 
 interface Props {
   count:      number

@@ -16,6 +16,24 @@ export const projects: Project[] = [
     cyrillicLabel: 'I · БЛОГ',
     imageType:     'canvas-blog',
     reversed:      false,
+    sampleLabel:   'Read an Extract',
+    sample: {
+      type: 'quote',
+      clippings: [
+        {
+          movie:       'The Court Jester',
+          excerpt:     `Move over, Wes Anderson. Before you even thought about your so-called 'Fantastic' Mr Fox, there was the Original = the Un-outfoxable Mr Black Fox, as portrayed by Danny Kaye in 1955 'Court Jester'. So, I ask, who is an auteur now?`,
+          quote:       `My new tattoo reads: 'You never outfox the fox.'`,
+          attribution: '— "Fantastic Mr Fox: The Origins of Courtly Camp"',
+        },
+        {
+          movie:       'Rebecca',
+          excerpt:     `Personally, I went with 'evil psycho bitch' originally. I hated R with ferocity and dedication on my first read. HOW DARE SHE — abuse, lie, cheat, manipulate poor Maxi. On subsequent reads, though, I started seeing shades of grey in an already monochrome world. Becks was not just a psycho, a whore, an irredeemable character that 'deserved' to be murdered — she was also a product of her circumstances and her time.`,
+          quote:       `The 3 Bs of a proper wife: Breeding, Brains and Beauty. (Also applies to horses.)`,
+          attribution: '— "Have You Been Rebecca-Fished Lately? Join the Club."',
+        },
+      ],
+    },
   },
   {
     id:            'podcast',
@@ -32,6 +50,12 @@ export const projects: Project[] = [
     cyrillicLabel: 'II · ПОДКАСТ',
     imageType:     'canvas-podcast',
     reversed:      true,
+    sampleLabel:   'Hear a Clip',
+    sample: {
+      type:  'audio',
+      src:   '/audio/kino-royale-sample.mp3',
+      label: 'Kino Royale · Episode Preview',
+    },
   },
   {
     id:            'simulator',
@@ -48,5 +72,17 @@ export const projects: Project[] = [
     cyrillicLabel: 'III · СИМУЛЯТОР',
     imageType:     'sim-mock',
     reversed:      false,
+    sampleLabel:   'Spin the Wheel',
+    sample: {
+      type: 'scenario',
+      scenarios: [
+        { label: 'THE HAUNTING',     fate: 'A malevolent presence has taken residence. Your Sim offers it tea. This does not help.' },
+        { label: 'DEAL WITH DEVIL',  fate: 'The terms were reasonable. They always are, at first.' },
+        { label: 'CURSED BLOODLINE', fate: 'The inheritance was unexpected. The curse came with it.' },
+        { label: 'MIDNIGHT VISITOR', fate: 'Someone knocks at 3am. Your Sim knows better than to answer. They answer anyway.' },
+        { label: 'POSSESSION',       fate: 'Your Sim has been replaced. The replacement is more organised.' },
+        { label: 'FINAL GIRL',       fate: 'Against all odds, your Sim is the last one standing. The odds are reconsidering.' },
+      ],
+    },
   },
 ]

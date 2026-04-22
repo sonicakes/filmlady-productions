@@ -134,13 +134,12 @@ export default function FoyerPanel({ onEnter }: Props) {
         </svg>
 
         <p className="anim-2 font-cinzel text-[0.6rem] tracking-[0.5em] text-gold-dim uppercase">
-          Est. in Exile · Anno MMXXIV
+          Est. in Exile · MMXXV
         </p>
 
-        <h1 className="anim-3 font-cormorant font-light text-parchment leading-[1.05]"
-          style={{ fontSize: 'clamp(3.5rem, 7vw, 6.5rem)' }}>
-          Film Lady<br />
-          <em className="italic text-gold">Productions</em>
+        <h1 className="anim-3 font-cormorant font-light text-parchment leading-none flex flex-col items-center gap-1">
+          <span style={{ fontSize: 'clamp(3.5rem, 8vw, 8rem)' }}>Film Lady</span>
+          <span className="italic text-gold font-light" style={{ fontSize: 'clamp(1.1rem, 2vw, 2rem)', letterSpacing: '0.45em' }}>productions</span>
         </h1>
 
         <p className="anim-4 font-garamond italic text-parchment-dim tracking-[0.05em]">
