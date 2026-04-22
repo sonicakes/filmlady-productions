@@ -72,7 +72,7 @@ export const projects: Project[] = [
     cyrillicLabel: 'III · СИМУЛЯТОР',
     imageType:     'sim-mock',
     reversed:      false,
-    sampleLabel:   'Spin the Wheel',
+    sampleLabel:   'Draw Your Fate',
     sample: {
       type: 'scenario',
       scenarios: [

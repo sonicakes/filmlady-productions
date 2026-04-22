@@ -290,141 +290,148 @@ function AudioOverlay({
   )
 }
 
-// ─── Spin wheel overlay (Simulator) ──────────────────────────────────────────
-type WheelScenario = { label: string; fate: string }
+// ─── Tarot card overlay (Simulator) ──────────────────────────────────────────
+type CardScenario = { label: string; fate: string }
 
-function SpinWheelOverlay({
+function TarotCardOverlay({
   sample, open, onClose,
 }: { sample: Extract<ProjectSample, { type: 'scenario' }>; open: boolean; onClose: () => void }) {
   const { scenarios } = sample
-  const n        = scenarios.length
-  const segAngle = 360 / n
+  const [flipped,  setFlipped]  = useState(false)
+  const [drawing,  setDrawing]  = useState(false)
+  const [scenario, setScenario] = useState<CardScenario | null>(null)
 
-  const [rotation,  setRotation]  = useState(0)
-  const [spinning,  setSpinning]  = useState(false)
-  const [result,    setResult]    = useState<WheelScenario | null>(null)
+  const pickRandom = () => scenarios[Math.floor(Math.random() * scenarios.length)]
 
-  const spin = () => {
-    if (spinning) return
-    setResult(null)
-    const targetIndex = Math.floor(Math.random() * n)
-    // Angle where target segment midpoint lands at the top pointer (0°):
-    // segment i occupies [i*segAngle, (i+1)*segAngle]; midpoint = (i+0.5)*segAngle
-    // We need the wheel rotated so that midpoint is at 0° → negate it
-    const targetAngle = 360 - (targetIndex + 0.5) * segAngle
-    const currentMod  = ((rotation % 360) + 360) % 360
-    const diff        = ((targetAngle - currentMod) + 360) % 360
-    const newRotation = rotation + 1440 + diff   // 4+ full spins then land
-    setRotation(newRotation)
-    setSpinning(true)
-    setTimeout(() => {
-      setSpinning(false)
-      setResult(scenarios[targetIndex])
-    }, 3200)
+  const draw = () => {
+    if (flipped || drawing) return
+    const picked = pickRandom()
+    setScenario(picked)
+    setDrawing(true)
+    setTimeout(() => { setFlipped(true); setDrawing(false) }, 120)
   }
 
-  // Build SVG wheel segments
-  const degToRad = (d: number) => (d * Math.PI) / 180
-  const segments = scenarios.map((s, i) => {
-    const startRad = degToRad(i * segAngle - 90)
-    const endRad   = degToRad((i + 1) * segAngle - 90)
-    const x1 = 50 + 45 * Math.cos(startRad)
-    const y1 = 50 + 45 * Math.sin(startRad)
-    const x2 = 50 + 45 * Math.cos(endRad)
-    const y2 = 50 + 45 * Math.sin(endRad)
-    const midRad = degToRad((i + 0.5) * segAngle - 90)
-    const tx = 50 + 30 * Math.cos(midRad)
-    const ty = 50 + 30 * Math.sin(midRad)
-    const textRotate = (i + 0.5) * segAngle
-    return { s, i, x1, y1, x2, y2, tx, ty, textRotate }
-  })
+  const drawAgain = () => {
+    setFlipped(false)
+    // Wait for flip-back, then auto-draw a new scenario
+    setTimeout(() => {
+      setScenario(pickRandom())
+      setTimeout(() => setFlipped(true), 120)
+    }, 750)
+  }
+
+  useEffect(() => {
+    if (!open) { setFlipped(false); setScenario(null) }
+  }, [open])
 
   return (
     <div
       className="absolute inset-0 z-20 bg-void/97 flex flex-col items-center
-        justify-center gap-4 px-6 py-8 transition-opacity duration-500"
+        justify-center gap-5 px-6 py-8 transition-opacity duration-500"
       style={{ opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none' }}
     >
       <CloseBtn onClick={onClose} />
 
       <p className="font-cinzel text-[0.45rem] tracking-[0.4em] text-gold-dim">
-        SPIN · YOUR · FATE
+        {flipped ? scenario?.label : 'DRAW · YOUR · FATE'}
       </p>
 
-      {/* Pointer arrow above wheel */}
-      <svg viewBox="0 0 20 10" className="w-5 h-3">
-        <polygon points="10,10 3,0 17,0" fill="rgba(201,168,76,0.8)" />
-      </svg>
+      {/* Card — 3D flip container */}
+      <div style={{ perspective: '900px', width: '130px', height: '210px' }}>
+        <div
+          onClick={!flipped && !drawing ? draw : undefined}
+          style={{
+            position:        'relative',
+            width:           '100%',
+            height:          '100%',
+            transformStyle:  'preserve-3d',
+            transform:       flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+            transition:      'transform 0.75s cubic-bezier(0.4, 0, 0.2, 1)',
+            cursor:          !flipped ? 'pointer' : 'default',
+          }}
+        >
+          {/* ── Card back ── */}
+          <div
+            className="absolute inset-0 border border-gold/35 overflow-hidden bg-void"
+            style={{ backfaceVisibility: 'hidden' }}
+          >
+            {/* Diamond trellis pattern */}
+            <svg className="absolute inset-0 w-full h-full opacity-[0.18]" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <pattern id="trellis" x="0" y="0" width="18" height="18" patternUnits="userSpaceOnUse">
+                  <path d="M9 0 L18 9 L9 18 L0 9 Z" fill="none" stroke="#c9a84c" strokeWidth="0.6"/>
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#trellis)" />
+            </svg>
+            {/* Inner border frame */}
+            <div className="absolute inset-[8px] border border-gold/20" />
+            {/* Centre ornament */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+              <CrownIcon className="w-10 h-8 opacity-30" />
+              <p className="font-cinzel text-gold/25" style={{ fontSize: '4.5px', letterSpacing: '0.35em' }}>
+                ROYAL SIMULATOR
+              </p>
+            </div>
+            {/* Corner marks */}
+            {[['top-2 left-2', ''], ['top-2 right-2', 'rotate-90'], ['bottom-2 left-2', '-rotate-90'], ['bottom-2 right-2', 'rotate-180']].map(([pos, rot], i) => (
+              <svg key={i} viewBox="0 0 10 10" className={`absolute ${pos} ${rot} w-3 h-3 opacity-20`}>
+                <path d="M0 10 L0 0 L10 0" fill="none" stroke="#c9a84c" strokeWidth="1"/>
+              </svg>
+            ))}
+          </div>
 
-      {/* Wheel */}
-      <div
-        className="w-full max-w-[200px] aspect-square"
-        style={{
-          transform:       `rotate(${rotation}deg)`,
-          transformOrigin: 'center center',
-          transition:      spinning
-            ? 'transform 3.2s cubic-bezier(0.15, 0.5, 0.08, 1)'
-            : 'none',
-        }}
-      >
-        <svg viewBox="0 0 100 100" className="w-full h-full">
-          {segments.map(({ s, i, x1, y1, x2, y2, tx, ty, textRotate }) => (
-            <g key={i}>
-              <path
-                d={`M 50 50 L ${x1.toFixed(2)} ${y1.toFixed(2)} A 45 45 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`}
-                fill={i % 2 === 0 ? 'rgba(201,168,76,0.1)' : 'rgba(201,168,76,0.04)'}
-                stroke="rgba(201,168,76,0.25)"
-                strokeWidth="0.5"
-              />
-              <text
-                x={tx.toFixed(2)}
-                y={ty.toFixed(2)}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                transform={`rotate(${textRotate.toFixed(1)}, ${tx.toFixed(2)}, ${ty.toFixed(2)})`}
-                style={{
-                  fontSize:      '3.2px',
-                  fontFamily:    'Cinzel, serif',
-                  fill:          'rgba(201,168,76,0.75)',
-                  letterSpacing: '0.2px',
-                }}
-              >
-                {s.label}
-              </text>
-            </g>
-          ))}
-          {/* Rings */}
-          <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(201,168,76,0.4)" strokeWidth="0.75" />
-          <circle cx="50" cy="50" r="6"  fill="rgba(201,168,76,0.12)" stroke="rgba(201,168,76,0.5)" strokeWidth="0.75" />
-          <circle cx="50" cy="50" r="2"  fill="rgba(201,168,76,0.7)" />
-        </svg>
+          {/* ── Card front ── */}
+          <div
+            className="absolute inset-0 border border-gold/35 bg-void flex flex-col items-center justify-center gap-3 px-4 text-center"
+            style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+          >
+            {/* Inner border frame */}
+            <div className="absolute inset-[8px] border border-gold/15" />
+            {/* Top label */}
+            <p className="font-cinzel text-gold/50 relative" style={{ fontSize: '4px', letterSpacing: '0.3em' }}>
+              SCENARIO
+            </p>
+            {/* Gold rule */}
+            <div className="w-8 h-px bg-gold/30" />
+            {/* Scenario title */}
+            <p className="font-cinzel text-gold leading-tight relative" style={{ fontSize: '7.5px', letterSpacing: '0.15em' }}>
+              {scenario?.label}
+            </p>
+            {/* Divider ornament */}
+            <span className="text-gold/40 text-[8px]">✦</span>
+            {/* Fate text */}
+            <p className="font-garamond italic text-parchment-dim leading-[1.65] relative" style={{ fontSize: '8px' }}>
+              {scenario?.fate}
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Fate reveal */}
-      <div
-        className="text-center transition-opacity duration-700 min-h-[3rem] flex flex-col items-center justify-center gap-2"
-        style={{ opacity: result ? 1 : 0 }}
-      >
-        <p className="font-cinzel text-[0.5rem] tracking-[0.35em] text-gold">
-          {result?.label}
-        </p>
-        <p className="font-garamond italic text-parchment-dim text-[0.8rem] leading-[1.7]">
-          {result?.fate}
-        </p>
-      </div>
-
-      {/* Spin button */}
-      <button
-        onClick={spin}
-        disabled={spinning}
-        data-hoverable
-        className="font-cinzel text-[0.5rem] tracking-[0.4em] text-gold
-          border border-gold/40 px-6 py-2
-          hover:bg-gold/10 hover:border-gold transition-all duration-300
-          disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        {result ? 'SPIN AGAIN' : 'SPIN'}
-      </button>
+      {/* CTA */}
+      {!flipped ? (
+        <button
+          onClick={draw}
+          disabled={drawing}
+          data-hoverable
+          className="font-cinzel text-[0.5rem] tracking-[0.4em] text-gold
+            border border-gold/40 px-6 py-2
+            hover:bg-gold/10 hover:border-gold transition-all duration-300
+            disabled:opacity-30"
+        >
+          DRAW
+        </button>
+      ) : (
+        <button
+          onClick={drawAgain}
+          data-hoverable
+          className="font-cinzel text-[0.5rem] tracking-[0.4em] text-gold-dim
+            border border-gold/20 px-6 py-2
+            hover:text-gold hover:border-gold/40 transition-all duration-300"
+        >
+          DRAW AGAIN
+        </button>
+      )}
     </div>
   )
 }
@@ -538,7 +545,7 @@ export default function ProjectPanel({ project, isActive }: Props) {
           {/* Sample overlays — sit above the curtain */}
           {sample.type === 'quote'    && <QuoteOverlay    sample={sample} open={sampleOpen} onClose={() => setSampleOpen(false)} />}
           {sample.type === 'audio'    && <AudioOverlay    sample={sample} open={sampleOpen} onClose={() => setSampleOpen(false)} />}
-          {sample.type === 'scenario' && <SpinWheelOverlay sample={sample} open={sampleOpen} onClose={() => setSampleOpen(false)} />}
+          {sample.type === 'scenario' && <TarotCardOverlay sample={sample} open={sampleOpen} onClose={() => setSampleOpen(false)} />}
         </div>
 
         {/* ── Text column ── */}

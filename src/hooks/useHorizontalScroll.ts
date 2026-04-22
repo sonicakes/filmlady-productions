@@ -115,15 +115,31 @@ export function useHorizontalScroll({ panelCount, progressBarRef }: Options) {
         })
       })
 
+      // ── Wheel intercept — one scroll = one panel ─────────────────────────
+      // We prevent default scroll and drive navigation ourselves so the panel
+      // always lands cleanly. A lock flag blocks further events until the
+      // 1.2s scrollToPanel animation has settled (+ 200ms buffer for scrub).
+      let wheelLocked = false
+      const handleWheel = (e: WheelEvent) => {
+        e.preventDefault()
+        if (wheelLocked) return
+        const st = ScrollTrigger.getById('horizontal-scroll')
+        if (!st) return
+        const current = Math.round(st.progress * (panelCount - 1))
+        // Respect horizontal trackpad swipes as well as vertical wheel
+        const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
+        if (delta > 0)      scrollToPanel(Math.min(panelCount - 1, current + 1))
+        else if (delta < 0) scrollToPanel(Math.max(0, current - 1))
+        else return
+        wheelLocked = true
+        setTimeout(() => { wheelLocked = false }, 1400)
+      }
+
       // ── Keyboard navigation ───────────────────────────────────────────────
-      // Arrow keys move one full panel at a time.
-      // We read current progress from ScrollTrigger rather than React state
-      // to avoid stale-closure issues.
       const handleKeyDown = (e: KeyboardEvent) => {
         const st = ScrollTrigger.getById('horizontal-scroll')
         if (!st) return
         const current = Math.round(st.progress * (panelCount - 1))
-
         if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
           scrollToPanel(Math.min(panelCount - 1, current + 1))
         }
@@ -132,12 +148,13 @@ export function useHorizontalScroll({ panelCount, progressBarRef }: Options) {
         }
       }
 
+      // passive: false is required so we can call e.preventDefault() on wheel
+      window.addEventListener('wheel',   handleWheel, { passive: false })
       window.addEventListener('keydown', handleKeyDown)
 
-      // useGSAP automatically kills tweens/ScrollTriggers in its scope on
-      // unmount, but we clean up the keydown listener manually.
       return () => {
         tween.kill()
+        window.removeEventListener('wheel',   handleWheel)
         window.removeEventListener('keydown', handleKeyDown)
       }
     },
