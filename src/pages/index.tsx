@@ -107,7 +107,13 @@ export default function IndexPage() {
           ref={trackRef}
           className="scroll-track flex h-full"
         >
-          <FoyerPanel onEnter={() => scrollToPanel(1)} />
+          <FoyerPanel onEnter={() => {
+            if (window.innerWidth < 768) {
+              document.getElementById('decree-panel')?.scrollIntoView({ behavior: 'smooth' })
+            } else {
+              scrollToPanel(1)
+            }
+          }} />
           <DecreePanel />
           {projects.map((project, i) => (
             <ProjectPanel

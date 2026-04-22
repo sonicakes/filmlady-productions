@@ -4,7 +4,7 @@ import CrownIcon from '../layout/CrownIcon'
 
 export default function DecreePanel() {
   return (
-    <section className="relative w-screen min-h-screen md:h-screen flex-shrink-0 flex items-center justify-center bg-void-2 md:overflow-hidden py-20 md:py-0">
+    <section id="decree-panel" className="relative w-screen min-h-screen md:h-screen flex-shrink-0 flex items-center justify-center bg-void-2 md:overflow-hidden py-20 md:py-0">
 
       {/* Section counter */}
       <div className="absolute top-10 right-12 font-cinzel text-[0.65rem]

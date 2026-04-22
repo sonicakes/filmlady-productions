@@ -328,26 +328,36 @@ function TarotCardOverlay({
 
   useEffect(() => {
     if (open) {
-      // Draw immediately on open — brief pause so overlay fade-in starts first
       const picked = pickRandom()
       setScenario(picked)
       setTimeout(() => setFlipped(true), 300)
+      document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.width    = '100%'
     } else {
       setFlipped(false)
       setScenario(null)
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width    = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width    = ''
     }
   }, [open])
 
   return (
     <div
-      className="absolute inset-0 z-20 bg-void/97 flex flex-col items-center
-        justify-center gap-4 px-4 py-4 transition-opacity duration-500"
+      className="fixed md:absolute inset-0 z-[200] bg-void/97 flex flex-col items-center
+        justify-center gap-2 px-3 py-3 transition-opacity duration-500"
       style={{ opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none' }}
     >
       <CloseBtn onClick={onClose} />
 
       {/* Card — 3D flip container */}
-      <div style={{ perspective: '1200px', width: '300px', height: '560px' }}>
+      <div className="w-[90vw] md:w-[300px]" style={{ perspective: '1200px', height: 'clamp(360px, 75dvh, 560px)' }}>
         <div
           onClick={undefined}
           style={{
@@ -445,6 +455,20 @@ function TarotCardOverlay({
         </div>
       </div>
 
+      {/* Mobile-only draw-again icon — shown below card after flip */}
+      {flipped && (
+        <button
+          onClick={drawAgain}
+          data-hoverable
+          aria-label="Draw again"
+          className="md:hidden text-gold-dim hover:text-gold transition-colors duration-300"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+          </svg>
+        </button>
+      )}
     </div>
   )
 }
