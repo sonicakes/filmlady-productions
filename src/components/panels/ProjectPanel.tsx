@@ -291,29 +291,35 @@ function AudioOverlay({
 }
 
 // ─── Tarot card overlay (Simulator) ──────────────────────────────────────────
-type CardScenario = { label: string; fate: string }
+type CardScenario = { label: string; fate: string; imgKey?: string }
+
+import hauntedHillImg   from '../../images/scenarios/haunted-hill.png'
+import craftImg         from '../../images/scenarios/craft.png'
+import rebeccaImg       from '../../images/scenarios/rebecca-og.png'
+import blairWitchImg    from '../../images/scenarios/blair-witch.png'
+import miseryImg        from '../../images/scenarios/misery-portrait.png'
+import auditionImg      from '../../images/scenarios/audition.png'
+
+const scenarioImages: Record<string, string> = {
+  'haunted-hill':    hauntedHillImg,
+  'craft':           craftImg,
+  'rebecca-og':      rebeccaImg,
+  'blair-witch':     blairWitchImg,
+  'misery-portrait': miseryImg,
+  'audition':        auditionImg,
+}
 
 function TarotCardOverlay({
   sample, open, onClose,
 }: { sample: Extract<ProjectSample, { type: 'scenario' }>; open: boolean; onClose: () => void }) {
   const { scenarios } = sample
   const [flipped,  setFlipped]  = useState(false)
-  const [drawing,  setDrawing]  = useState(false)
   const [scenario, setScenario] = useState<CardScenario | null>(null)
 
   const pickRandom = () => scenarios[Math.floor(Math.random() * scenarios.length)]
 
-  const draw = () => {
-    if (flipped || drawing) return
-    const picked = pickRandom()
-    setScenario(picked)
-    setDrawing(true)
-    setTimeout(() => { setFlipped(true); setDrawing(false) }, 120)
-  }
-
   const drawAgain = () => {
     setFlipped(false)
-    // Wait for flip-back, then auto-draw a new scenario
     setTimeout(() => {
       setScenario(pickRandom())
       setTimeout(() => setFlipped(true), 120)
@@ -321,25 +327,29 @@ function TarotCardOverlay({
   }
 
   useEffect(() => {
-    if (!open) { setFlipped(false); setScenario(null) }
+    if (open) {
+      // Draw immediately on open — brief pause so overlay fade-in starts first
+      const picked = pickRandom()
+      setScenario(picked)
+      setTimeout(() => setFlipped(true), 300)
+    } else {
+      setFlipped(false)
+      setScenario(null)
+    }
   }, [open])
 
   return (
     <div
       className="absolute inset-0 z-20 bg-void/97 flex flex-col items-center
-        justify-center gap-5 px-6 py-8 transition-opacity duration-500"
+        justify-center gap-4 px-4 py-4 transition-opacity duration-500"
       style={{ opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none' }}
     >
       <CloseBtn onClick={onClose} />
 
-      <p className="font-cinzel text-[0.45rem] tracking-[0.4em] text-gold-dim">
-        {flipped ? scenario?.label : 'DRAW · YOUR · FATE'}
-      </p>
-
       {/* Card — 3D flip container */}
-      <div style={{ perspective: '900px', width: '130px', height: '210px' }}>
+      <div style={{ perspective: '1200px', width: '300px', height: '560px' }}>
         <div
-          onClick={!flipped && !drawing ? draw : undefined}
+          onClick={undefined}
           style={{
             position:        'relative',
             width:           '100%',
@@ -347,7 +357,6 @@ function TarotCardOverlay({
             transformStyle:  'preserve-3d',
             transform:       flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
             transition:      'transform 0.75s cubic-bezier(0.4, 0, 0.2, 1)',
-            cursor:          !flipped ? 'pointer' : 'default',
           }}
         >
           {/* ── Card back ── */}
@@ -355,7 +364,6 @@ function TarotCardOverlay({
             className="absolute inset-0 border border-gold/35 overflow-hidden bg-void"
             style={{ backfaceVisibility: 'hidden' }}
           >
-            {/* Diamond trellis pattern */}
             <svg className="absolute inset-0 w-full h-full opacity-[0.18]" preserveAspectRatio="xMidYMid slice">
               <defs>
                 <pattern id="trellis" x="0" y="0" width="18" height="18" patternUnits="userSpaceOnUse">
@@ -364,16 +372,13 @@ function TarotCardOverlay({
               </defs>
               <rect width="100%" height="100%" fill="url(#trellis)" />
             </svg>
-            {/* Inner border frame */}
             <div className="absolute inset-[8px] border border-gold/20" />
-            {/* Centre ornament */}
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-              <CrownIcon className="w-10 h-8 opacity-30" />
-              <p className="font-cinzel text-gold/25" style={{ fontSize: '4.5px', letterSpacing: '0.35em' }}>
+              <CrownIcon className="w-16 h-14 opacity-30" />
+              <p className="font-cinzel text-gold/25" style={{ fontSize: '7.5px', letterSpacing: '0.35em' }}>
                 ROYAL SIMULATOR
               </p>
             </div>
-            {/* Corner marks */}
             {[['top-2 left-2', ''], ['top-2 right-2', 'rotate-90'], ['bottom-2 left-2', '-rotate-90'], ['bottom-2 right-2', 'rotate-180']].map(([pos, rot], i) => (
               <svg key={i} viewBox="0 0 10 10" className={`absolute ${pos} ${rot} w-3 h-3 opacity-20`}>
                 <path d="M0 10 L0 0 L10 0" fill="none" stroke="#c9a84c" strokeWidth="1"/>
@@ -381,57 +386,65 @@ function TarotCardOverlay({
             ))}
           </div>
 
-          {/* ── Card front ── */}
+          {/* ── Card front — header top, illustration below ── */}
           <div
-            className="absolute inset-0 border border-gold/35 bg-void flex flex-col items-center justify-center gap-3 px-4 text-center"
+            className="absolute inset-0 border border-gold/35 bg-void overflow-hidden flex flex-col"
             style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
-            {/* Inner border frame */}
-            <div className="absolute inset-[8px] border border-gold/15" />
-            {/* Top label */}
-            <p className="font-cinzel text-gold/50 relative" style={{ fontSize: '4px', letterSpacing: '0.3em' }}>
-              SCENARIO
-            </p>
-            {/* Gold rule */}
-            <div className="w-8 h-px bg-gold/30" />
-            {/* Scenario title */}
-            <p className="font-cinzel text-gold leading-tight relative" style={{ fontSize: '7.5px', letterSpacing: '0.15em' }}>
-              {scenario?.label}
-            </p>
-            {/* Divider ornament */}
-            <span className="text-gold/40 text-[8px]">✦</span>
-            {/* Fate text */}
-            <p className="font-garamond italic text-parchment-dim leading-[1.65] relative" style={{ fontSize: '8px' }}>
-              {scenario?.fate}
-            </p>
+            <div className="absolute inset-[8px] border border-gold/15 pointer-events-none z-10" />
+
+            {/* Header: title + fate text */}
+            <div className="relative z-20 flex flex-col items-center gap-2 px-5 pt-6 pb-4 text-center bg-void">
+              <p className="font-cinzel text-gold tracking-widest" style={{ fontSize: '13px', letterSpacing: '0.2em' }}>
+                {scenario?.label}
+              </p>
+              <div className="w-10 h-px bg-gold/30" />
+              <p className="font-garamond italic text-parchment-dim leading-[1.6]" style={{ fontSize: '13px' }}>
+                {scenario?.fate}
+              </p>
+            </div>
+
+            {/* Draw-again icon — centered over illustration */}
+            {flipped && (
+              <button
+                onClick={e => { e.stopPropagation(); drawAgain() }}
+                data-hoverable
+                aria-label="Draw again"
+                className="absolute inset-0 z-30 flex items-center justify-center
+                  text-gold/0 hover:text-gold/70 transition-colors duration-300
+                  bg-void/0 hover:bg-void/30"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 drop-shadow-lg">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                  <path d="M3 3v5h5" />
+                </svg>
+              </button>
+            )}
+
+            {/* Illustration fills remaining height */}
+            <div className="relative flex-1 overflow-hidden">
+              {scenario?.imgKey ? (
+                <img
+                  src={scenarioImages[scenario.imgKey]}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                  style={{ filter: 'brightness(0.8) saturate(0.9)' }}
+                />
+              ) : (
+                <svg className="absolute inset-0 w-full h-full opacity-[0.12]" preserveAspectRatio="xMidYMid slice">
+                  <defs>
+                    <pattern id="trellis-front" x="0" y="0" width="18" height="18" patternUnits="userSpaceOnUse">
+                      <path d="M9 0 L18 9 L9 18 L0 9 Z" fill="none" stroke="#c9a84c" strokeWidth="0.6"/>
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#trellis-front)" />
+                </svg>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* CTA */}
-      {!flipped ? (
-        <button
-          onClick={draw}
-          disabled={drawing}
-          data-hoverable
-          className="font-cinzel text-[0.5rem] tracking-[0.4em] text-gold
-            border border-gold/40 px-6 py-2
-            hover:bg-gold/10 hover:border-gold transition-all duration-300
-            disabled:opacity-30"
-        >
-          DRAW
-        </button>
-      ) : (
-        <button
-          onClick={drawAgain}
-          data-hoverable
-          className="font-cinzel text-[0.5rem] tracking-[0.4em] text-gold-dim
-            border border-gold/20 px-6 py-2
-            hover:text-gold hover:border-gold/40 transition-all duration-300"
-        >
-          DRAW AGAIN
-        </button>
-      )}
     </div>
   )
 }
