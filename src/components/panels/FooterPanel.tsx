@@ -13,7 +13,7 @@ function toRoman(n: number): string {
 
 const LINKS = [
   {
-    label: 'GitHub',
+    label: 'Github',
     href:  'https://github.com/sonicakes',
     sub:   '@sonicakes',
   },
@@ -90,7 +90,7 @@ export default function FooterPanel() {
         </div>
 
         <p className="font-garamond italic text-parchment-dim text-[0.95rem] leading-[1.8] tracking-wide">
-          "The court is adjourned. The exile endures."
+          "The court is adjourned. You may be dismissed."
         </p>
 
         {/* Divider */}
@@ -131,7 +131,7 @@ export default function FooterPanel() {
         </div>
 
         <p className="font-cinzel text-[0.55rem] tracking-[0.3em] text-gold-dim/60">
-          © {toRoman(new Date().getFullYear())} Film Lady Productions · All rights reserved
+          © {toRoman(new Date().getFullYear())} Film Lady Productions · Nothing is reserved
         </p>
       </div>
     </section>
