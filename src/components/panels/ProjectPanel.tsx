@@ -75,12 +75,12 @@ function Clipping({ movie, excerpt, quote, attribution, rotation, offsetX, zInde
       {/* Movie stamp — absolute overlay, inset so it stays within card */}
       <div
         className="absolute top-3 right-3 w-11 h-11 rounded-full
-          border border-dashed border-crimson/30
+          border-2 border-dashed border-crimson-bright
           flex items-center justify-center text-center
-          bg-parchment"
+          bg-transparent"
         style={{ transform: 'rotate(15deg)' }}
       >
-        <span className="font-cinzel text-crimson leading-tight px-1"
+        <span className="font-cinzel text-crimson-bright leading-tight px-1"
           style={{ fontSize: '9px', letterSpacing: '0.06em', fontWeight: 700 }}>
           {movie}
         </span>
@@ -116,9 +116,26 @@ function Clipping({ movie, excerpt, quote, attribution, rotation, offsetX, zInde
 function QuoteOverlay({
   sample, open, onClose,
 }: { sample: Extract<ProjectSample, { type: 'quote' }>; open: boolean; onClose: () => void }) {
+  useEffect(() => {
+    if (open && window.innerWidth < 768) {
+      const scrollY = window.scrollY
+      document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.width    = '100%'
+      document.body.style.top      = `-${scrollY}px`
+      return () => {
+        document.body.style.overflow = ''
+        document.body.style.position = ''
+        document.body.style.width    = ''
+        document.body.style.top      = ''
+        window.scrollTo(0, scrollY)
+      }
+    }
+  }, [open])
+
   return (
     <div
-      className="absolute inset-0 z-20 bg-void/97 flex flex-col justify-center
+      className="fixed md:absolute inset-0 z-[200] bg-void/97 flex flex-col justify-center
         gap-0 px-6 py-8 transition-opacity duration-500 overflow-y-auto"
       style={{ opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none' }}
     >
@@ -150,6 +167,7 @@ function AudioOverlay({
   const progressRef = useRef<HTMLDivElement>(null)
   const timeRef     = useRef<HTMLSpanElement>(null)
   const [playing, setPlaying] = useState(false)
+  const [volume,  setVolume]  = useState(1)
 
   const fmt = (s: number) =>
     `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`
@@ -173,9 +191,23 @@ function AudioOverlay({
   }, [])
 
   useEffect(() => {
-    if (!open && audioRef.current) {
-      audioRef.current.pause()
-      setPlaying(false)
+    if (!open) {
+      if (audioRef.current) { audioRef.current.pause(); setPlaying(false) }
+      return
+    }
+    if (window.innerWidth < 768) {
+      const scrollY = window.scrollY
+      document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.width    = '100%'
+      document.body.style.top      = `-${scrollY}px`
+      return () => {
+        document.body.style.overflow = ''
+        document.body.style.position = ''
+        document.body.style.width    = ''
+        document.body.style.top      = ''
+        window.scrollTo(0, scrollY)
+      }
     }
   }, [open])
 
@@ -186,46 +218,38 @@ function AudioOverlay({
     else         { void audio.play(); setPlaying(true) }
   }
 
+  const changeVolume = (v: number) => {
+    setVolume(v)
+    if (audioRef.current) audioRef.current.volume = v
+  }
+
   return (
     <div
-      className="absolute inset-0 z-20 bg-void/97 flex flex-col items-center
-        justify-center gap-5 px-8 py-10 transition-opacity duration-500"
+      className="fixed md:absolute inset-0 z-[200] bg-void/97 flex flex-col items-center
+        justify-center gap-6 px-8 py-10 transition-opacity duration-500"
       style={{ opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none' }}
     >
       <CloseBtn onClick={onClose} />
       <audio ref={audioRef} src={sample.src} preload="metadata" />
 
-      {/* Track label */}
-      <p className="font-cinzel text-[0.5rem] tracking-[0.35em] text-gold-dim text-center">
-        {sample.label}
-      </p>
+      {/* ── Episode card ── */}
+      <div className="w-full md:w-full border border-gold/30 px-6 py-5 flex flex-col gap-3 bg-void-3"
+        style={{ width: 'calc(100% + 2rem)', marginLeft: '-1rem', marginRight: '-1rem' }}
+      >
+        <p className="font-cinzel text-gold-dim tracking-[0.35em]" style={{ fontSize: '9px' }}>
+          {sample.episode}
+        </p>
+        <h3 className="font-cormorant italic text-gold leading-tight text-[1.4rem] md:text-[2rem]">
+          {sample.title}
+        </h3>
+        <div className="w-8 h-px bg-gold/30" />
+        <p className="font-garamond italic text-parchment-dim leading-[1.6]" style={{ fontSize: '13px', whiteSpace: 'pre-line' }}>
+          {sample.subtitle}
+        </p>
+      </div>
 
-      {/* Decorative SVG waveform — static art behind bars */}
-      <div className="relative w-full flex flex-col items-center gap-3">
-        <svg
-          viewBox="0 0 120 24"
-          className="w-full opacity-[0.12]"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0 12 C4 4,8 20,12 12 C16 4,20 20,24 12 C28 4,32 20,36 12
-               C40 4,44 20,48 12 C52 4,56 20,60 12 C64 4,68 20,72 12
-               C76 4,80 20,84 12 C88 4,92 20,96 12 C100 4,104 20,108 12
-               C112 4,116 20,120 12"
-            stroke="#c9a84c"
-            strokeWidth="1.5"
-            fill="none"
-          />
-          <path
-            d="M0 12 C3 7,7 17,12 12 C17 7,21 17,26 12 C31 7,35 17,40 12
-               C45 7,49 17,54 12 C59 7,63 17,68 12 C73 7,77 17,82 12
-               C87 7,91 17,96 12 C101 7,105 17,110 12 C115 7,118 17,120 12"
-            stroke="#c9a84c"
-            strokeWidth="0.75"
-            fill="none"
-            opacity="0.6"
-          />
-        </svg>
+      {/* ── Controls ── */}
+      <div className="w-full flex flex-col items-center gap-4">
 
         {/* Animated EQ bars */}
         <div className="flex items-end gap-[4px]" style={{ height: '44px' }}>
@@ -248,43 +272,67 @@ function AudioOverlay({
             />
           ))}
         </div>
-      </div>
 
-      {/* Play / Pause */}
-      <button
-        onClick={toggle}
-        data-hoverable
-        aria-label={playing ? 'Pause' : 'Play'}
-        className="w-12 h-12 flex items-center justify-center border border-gold/40
-          hover:border-gold hover:bg-gold/10 transition-all duration-300"
-      >
-        {playing ? (
-          <svg viewBox="0 0 20 20" className="w-4 h-4 fill-gold">
-            <rect x="4" y="3" width="4" height="14" />
-            <rect x="12" y="3" width="4" height="14" />
-          </svg>
-        ) : (
-          <svg viewBox="0 0 20 20" className="w-4 h-4 fill-gold" style={{ marginLeft: '2px' }}>
-            <polygon points="4,2 18,10 4,18" />
-          </svg>
-        )}
-      </button>
+        {/* Play / Pause */}
+        <button
+          onClick={toggle}
+          data-hoverable
+          aria-label={playing ? 'Pause' : 'Play'}
+          className="w-14 h-14 flex items-center justify-center border border-gold/40
+            hover:border-gold hover:bg-gold/10 transition-all duration-300"
+        >
+          {playing ? (
+            <svg viewBox="0 0 20 20" className="w-5 h-5 fill-gold">
+              <rect x="4" y="3" width="4" height="14" />
+              <rect x="12" y="3" width="4" height="14" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 20 20" className="w-5 h-5 fill-gold" style={{ marginLeft: '2px' }}>
+              <polygon points="4,2 18,10 4,18" />
+            </svg>
+          )}
+        </button>
 
-      {/* Progress track */}
-      <div className="w-full flex flex-col gap-2">
-        <div className="relative w-full h-px bg-gold/20">
-          <div
-            ref={progressRef}
-            className="absolute left-0 top-0 h-px bg-gold"
-            style={{ width: '0%' }}
+        {/* Progress track */}
+        <div className="w-full flex flex-col gap-2">
+          <div className="relative w-full bg-gold/20" style={{ height: '2px' }}>
+            <div
+              ref={progressRef}
+              className="absolute left-0 top-0 bg-gold"
+              style={{ width: '0%', height: '2px' }}
+            />
+          </div>
+          <span
+            ref={timeRef}
+            className="font-cinzel text-[0.5rem] tracking-[0.2em] text-gold-dim self-end"
+          >
+            0:00 / 0:00
+          </span>
+        </div>
+
+        {/* Volume */}
+        <div className="w-full flex items-center gap-3">
+          {/* Speaker icon */}
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5"
+            strokeLinecap="round" strokeLinejoin="round"
+            className="w-4 h-4 flex-shrink-0 text-gold-dim"
+          >
+            <path d="M3 7.5h3l4-3v11l-4-3H3z" />
+            {volume > 0   && <path d="M13 7a4 4 0 0 1 0 6" />}
+            {volume > 0.5 && <path d="M15 5a7 7 0 0 1 0 10" />}
+          </svg>
+          <input
+            type="range"
+            min={0} max={1} step={0.02}
+            value={volume}
+            onChange={e => changeVolume(Number(e.target.value))}
+            className="flex-1 h-px appearance-none cursor-pointer"
+            style={{
+              accentColor: '#c9a84c',
+              background: `linear-gradient(to right, #c9a84c ${volume * 100}%, rgba(201,168,76,0.2) ${volume * 100}%)`,
+            }}
           />
         </div>
-        <span
-          ref={timeRef}
-          className="font-cinzel text-[0.45rem] tracking-[0.2em] text-gold-dim self-end"
-        >
-          0:00 / 0:00
-        </span>
       </div>
     </div>
   )
@@ -331,20 +379,23 @@ function TarotCardOverlay({
       const picked = pickRandom()
       setScenario(picked)
       setTimeout(() => setFlipped(true), 300)
-      document.body.style.overflow = 'hidden'
-      document.body.style.position = 'fixed'
-      document.body.style.width    = '100%'
+      if (window.innerWidth < 768) {
+        const scrollY = window.scrollY
+        document.body.style.overflow = 'hidden'
+        document.body.style.position = 'fixed'
+        document.body.style.width    = '100%'
+        document.body.style.top      = `-${scrollY}px`
+        return () => {
+          document.body.style.overflow = ''
+          document.body.style.position = ''
+          document.body.style.width    = ''
+          document.body.style.top      = ''
+          window.scrollTo(0, scrollY)
+        }
+      }
     } else {
       setFlipped(false)
       setScenario(null)
-      document.body.style.overflow = ''
-      document.body.style.position = ''
-      document.body.style.width    = ''
-    }
-    return () => {
-      document.body.style.overflow = ''
-      document.body.style.position = ''
-      document.body.style.width    = ''
     }
   }, [open])
 

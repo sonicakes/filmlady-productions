@@ -5,7 +5,7 @@
 
 export type ProjectSample =
   | { type: 'quote';    clippings: Array<{ movie: string; excerpt: string; quote: string; attribution: string }> }
-  | { type: 'audio';    src: string;     label: string }
+  | { type: 'audio';    src: string;     label: string; episode: string; title: string; subtitle: string }
   | { type: 'scenario'; scenarios: Array<{ label: string; fate: string; imgKey?: string }> }
 
 export interface Project {

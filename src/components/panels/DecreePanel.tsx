@@ -41,7 +41,9 @@ export default function DecreePanel() {
 
           {/* Circular portrait medallion */}
           <div className="relative z-10 w-36 h-36 rounded-full overflow-hidden mb-5
-            ring-1 ring-gold/30">
+            ring-1 ring-gold/30"
+            style={{ boxShadow: '0 0 18px 4px rgba(201,168,76,0.25), 0 0 38px 8px rgba(201,168,76,0.10)' }}
+          >
             <img
               src={portraitSrc as string}
               alt="The Film Lady"
