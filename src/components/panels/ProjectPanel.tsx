@@ -677,18 +677,25 @@ export default function ProjectPanel({ project, isActive }: Props) {
             ))}
           </div>
 
-          <a
-            href={link}
-            target={link !== '#' ? '_blank' : undefined}
-            rel="noreferrer"
-            data-hoverable
-            className="project-link inline-flex items-center gap-3 font-cinzel
-              text-[0.6rem] tracking-[0.35em] text-gold
-              transition-all duration-300 after:content-['→'] after:transition-transform
-              hover:after:translate-x-1"
-          >
-            {linkLabel}
-          </a>
+          {link === '#' ? (
+            <span className="inline-flex items-center font-cinzel
+              text-[0.6rem] tracking-[0.35em] text-gold-dim cursor-default select-none">
+              Website Coming Soon
+            </span>
+          ) : (
+            <a
+              href={link}
+              target="_blank"
+              rel="noreferrer"
+              data-hoverable
+              className="project-link inline-flex items-center gap-3 font-cinzel
+                text-[0.6rem] tracking-[0.35em] text-gold
+                transition-all duration-300 after:content-['→'] after:transition-transform
+                hover:after:translate-x-1"
+            >
+              {linkLabel}
+            </a>
+          )}
         </div>
       </div>
     </section>
