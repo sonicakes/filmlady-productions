@@ -46,6 +46,7 @@ export const projects: Project[] = [
     tags:          ['Audio', 'Deep Dives', 'Spotify', 'Horror', 'Horror Adjacent'],
     link:          '#',
     linkLabel:     'Hear the Proclamation',
+    spotifyLink:   'https://open.spotify.com/show/5Ri7xJYDE9JDel4iCdl6LA',
     cyrillicWord:  'фальшь',
     cyrillicLabel: 'II · ПОДКАСТ',
     imageType:     'canvas-podcast',

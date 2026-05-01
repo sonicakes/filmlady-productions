@@ -29,8 +29,8 @@ const LINKS = [
   },
   {
     label: 'Contact',
-    href:  'mailto:hello@filmladyproductions.com',
-    sub:   'hello@filmladyproductions.com',
+    href:  'mailto:kinoroyalepodcast@gmail.com',
+    sub:   'kinoroyalepodcast@gmail.com',
   },
 ]
 
