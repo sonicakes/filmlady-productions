@@ -545,7 +545,7 @@ const SECONDARY_WORD: Record<number, { word: string; style: React.CSSProperties;
 export default function ProjectPanel({ project, isActive }: Props) {
   const {
     index, tag, title, titleAccent, format,
-    description, tags, link, linkLabel,
+    description, tags, link, linkLabel, spotifyLink,
     cyrillicWord, cyrillicLabel,
     imageType, reversed, sample, sampleLabel,
   } = project
@@ -599,7 +599,7 @@ export default function ProjectPanel({ project, isActive }: Props) {
         )}
       >
         {/* ── Image column ── */}
-        <div className={clsx('relative overflow-hidden aspect-[4/5] max-h-[65vh] group', reversed && 'md:[direction:ltr]')}>
+        <div className={clsx('relative overflow-hidden max-h-[65vh] group', imageType === 'canvas-podcast' ? 'aspect-square' : 'aspect-[4/5]', reversed && 'md:[direction:ltr]')}>
           <ProjectImage imageType={imageType} />
 
           {/* Curtain */}
@@ -678,10 +678,26 @@ export default function ProjectPanel({ project, isActive }: Props) {
           </div>
 
           {link === '#' ? (
-            <span className="inline-flex items-center font-cinzel
-              text-[0.6rem] tracking-[0.35em] text-gold-dim cursor-default select-none">
-              Website Coming Soon
-            </span>
+            <div className="flex items-center gap-6 flex-wrap">
+              {spotifyLink && (
+                <a
+                  href={spotifyLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  data-hoverable
+                  className="project-link inline-flex items-center gap-3 font-cinzel
+                    text-[0.6rem] tracking-[0.35em] text-gold
+                    transition-all duration-300 after:content-['→'] after:transition-transform
+                    hover:after:translate-x-1"
+                >
+                  Listen on Spotify
+                </a>
+              )}
+              <span className="inline-flex items-center font-cinzel
+                text-[0.6rem] tracking-[0.35em] text-gold-dim cursor-default select-none">
+                Website Coming Soon
+              </span>
+            </div>
           ) : (
             <a
               href={link}

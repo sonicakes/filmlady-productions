@@ -19,6 +19,7 @@ export interface Project {
   tags:         string[]                                    // pill tags
   link:         string
   linkLabel:    string                                      // CTA button text
+  spotifyLink?: string                                      // optional Spotify URL
   cyrillicWord: string                                      // large parallax bg word
   cyrillicLabel: string                                     // section counter e.g. 'II · БЛОГ'
   imageType:    'canvas-blog' | 'canvas-podcast' | 'sim-mock'
