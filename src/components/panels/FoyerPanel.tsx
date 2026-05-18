@@ -86,13 +86,14 @@ export default function FoyerPanel({ onEnter }: Props) {
   }, [])
 
   return (
-    <section className="relative w-screen h-screen flex-shrink-0 flex items-center justify-center bg-void overflow-hidden">
+    <section id="foyer-panel" className="relative w-screen h-screen flex-shrink-0 flex items-center justify-center bg-void overflow-hidden">
 
       {/* Particle canvas — sits behind everything (z-0) */}
-      <canvas ref={canvasRef} className="absolute inset-0 z-0" />
+      <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 z-0" />
 
       {/* Decorative Cyrillic words */}
       <span
+        aria-hidden="true"
         className="parallax-word absolute font-cormorant font-light pointer-events-none select-none whitespace-nowrap
           text-[11rem] text-gold/[0.025] uppercase [-webkit-text-stroke:1px_rgba(201,168,76,0.035)]"
         data-speed="0.25"
@@ -101,6 +102,7 @@ export default function FoyerPanel({ onEnter }: Props) {
         дама
       </span>
       <span
+        aria-hidden="true"
         className="parallax-word absolute font-cormorant font-light pointer-events-none select-none whitespace-nowrap
           text-[6rem] text-gold/[0.04] [-webkit-text-stroke:1px_rgba(201,168,76,0.05)]"
         data-speed="0.5"
@@ -114,6 +116,7 @@ export default function FoyerPanel({ onEnter }: Props) {
 
         {/* Crest SVG — the Film Lady logo from the prototype */}
         <svg
+          aria-hidden="true"
           className="w-20 h-20 mb-2 anim-1"
           viewBox="0 0 80 80"
           fill="none"

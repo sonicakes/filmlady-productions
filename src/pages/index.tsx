@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import type { HeadFC } from 'gatsby'
 
 import { useHorizontalScroll } from '../hooks/useHorizontalScroll'
@@ -21,6 +21,16 @@ export default function IndexPage() {
 
   const { containerRef, trackRef, currentPanel, scrollToPanel } =
     useHorizontalScroll({ panelCount: PANEL_COUNT, progressBarRef })
+
+  const MOBILE_IDS = ['foyer-panel', 'decree-panel', 'project-blog', 'project-podcast', 'project-simulator', 'footer-panel']
+
+  const navigateToPanel = useCallback((index: number) => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      document.getElementById(MOBILE_IDS[index])?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      scrollToPanel(index)
+    }
+  }, [scrollToPanel])
 
   // Scroll hint fades out the first time the user scrolls.
   // We watch the window scroll event and flip a boolean once — that's all
@@ -69,6 +79,7 @@ export default function IndexPage() {
           transition:     'opacity 0.6s ease, color 0.3s ease',
         }}
         aria-hidden={currentPanel === 0}
+        tabIndex={currentPanel === 0 ? -1 : 0}
       >
         ←&nbsp;FOYER
       </button>
@@ -77,6 +88,7 @@ export default function IndexPage() {
           fixed on screen regardless of which panel is visible */}
       <div
         id="scroll-hint"
+        aria-hidden="true"
         className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[500]
           font-cinzel text-[0.55rem] tracking-[0.35em] text-gold-dim
           items-center gap-4 transition-opacity duration-1000
@@ -114,7 +126,7 @@ export default function IndexPage() {
               scrollToPanel(1)
             }
           }} />
-          <DecreePanel />
+          <DecreePanel onNavigate={navigateToPanel} />
           {projects.map((project, i) => (
             <ProjectPanel
               key={project.id}

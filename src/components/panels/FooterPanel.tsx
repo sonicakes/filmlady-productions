@@ -11,7 +11,13 @@ function toRoman(n: number): string {
   return result
 }
 
-const LINKS = [
+const EMAIL_LINK = {
+  label: 'Email',
+  href:  'mailto:kinoroyalepodcast@gmail.com',
+  sub:   'kinoroyalepodcast@gmail.com',
+}
+
+const SOCIAL_LINKS = [
   {
     label: 'Github',
     href:  'https://github.com/sonicakes',
@@ -28,18 +34,19 @@ const LINKS = [
     sub:   '@filmladyroyal',
   },
   {
-    label: 'Contact',
-    href:  'mailto:kinoroyalepodcast@gmail.com',
-    sub:   'kinoroyalepodcast@gmail.com',
+    label: 'Instagram',
+    href:  'https://www.instagram.com/filmladyroyal/',
+    sub:   '@filmladyroyal',
   },
 ]
 
 export default function FooterPanel() {
   return (
-    <section className="relative w-screen min-h-screen md:h-screen flex-shrink-0 flex flex-col items-center justify-center bg-void md:overflow-hidden py-20 md:py-0">
+    <section id="footer-panel" className="relative w-screen min-h-screen md:h-screen flex-shrink-0 flex flex-col items-center justify-center bg-void md:overflow-hidden py-20 md:py-0">
 
       {/* Decorative Cyrillic words */}
       <span
+        aria-hidden="true"
         className="parallax-word absolute font-cormorant font-light
           pointer-events-none select-none uppercase whitespace-nowrap
           text-[8rem] text-gold/[0.03] [-webkit-text-stroke:1px_rgba(201,168,76,0.04)]"
@@ -49,6 +56,7 @@ export default function FooterPanel() {
        фильма
       </span>
       <span
+        aria-hidden="true"
         className="parallax-word absolute font-cormorant font-light
           pointer-events-none select-none whitespace-nowrap
           text-[12rem] text-gold/[0.02] [-webkit-text-stroke:1px_rgba(201,168,76,0.03)]"
@@ -59,7 +67,7 @@ export default function FooterPanel() {
       </span>
 
       {/* Section counter */}
-      <div className="absolute top-10 right-12 font-cinzel text-[0.65rem]
+      <div aria-hidden="true" className="absolute top-10 right-12 font-cinzel text-[0.65rem]
         tracking-[0.25em] text-gold-dim flex flex-col items-center gap-1">
         <CrownIcon className="w-4 h-3" />
         <span>КОДА</span>
@@ -69,7 +77,7 @@ export default function FooterPanel() {
       <div className="relative z-10 flex flex-col items-center text-center gap-8 w-[85vw] max-w-[700px]">
 
         {/* Crest — echoes the Foyer */}
-        <svg className="w-14 h-14 opacity-60" viewBox="0 0 80 80" fill="none">
+        <svg aria-hidden="true" className="w-14 h-14 opacity-60" viewBox="0 0 80 80" fill="none">
           <circle cx="40" cy="40" r="38" stroke="#c9a84c" strokeWidth="0.75" opacity="0.4" />
           <circle cx="40" cy="40" r="32" stroke="#c9a84c" strokeWidth="0.5"  opacity="0.25" />
           <path d="M26 42 L26 34 L32 38 L40 28 L48 38 L54 34 L54 42 Z"
@@ -94,19 +102,35 @@ export default function FooterPanel() {
         </p>
 
         {/* Divider */}
-        <div className="flex items-center gap-4 w-full">
+        <div aria-hidden="true" className="flex items-center gap-4 w-full">
           <span className="flex-1 block h-px bg-gold/20" />
           <span className="text-gold text-xs">✦</span>
           <span className="flex-1 block h-px bg-gold/20" />
         </div>
 
+        {/* Email */}
+        <a
+          href={EMAIL_LINK.href}
+          data-hoverable
+          className="flex flex-col items-center gap-1 group"
+        >
+          <span className="font-cinzel text-[0.65rem] tracking-[0.35em] text-gold
+            group-hover:text-parchment transition-colors duration-300">
+            {EMAIL_LINK.label}
+          </span>
+          <span className="font-garamond text-[0.9rem] italic text-parchment-dim
+            group-hover:text-parchment transition-colors duration-300">
+            {EMAIL_LINK.sub}
+          </span>
+        </a>
+
         {/* Social links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 w-full">
-          {LINKS.map(({ label, href, sub }) => (
+          {SOCIAL_LINKS.map(({ label, href, sub }) => (
             <a
               key={label}
               href={href}
-              target={href.startsWith('mailto') ? undefined : '_blank'}
+              target="_blank"
               rel="noreferrer"
               data-hoverable
               className="flex flex-col items-center gap-1 group"
@@ -124,14 +148,14 @@ export default function FooterPanel() {
         </div>
 
         {/* Divider */}
-        <div className="flex items-center gap-4 w-full">
+        <div aria-hidden="true" className="flex items-center gap-4 w-full">
           <span className="flex-1 block h-px bg-gold/20" />
           <span className="text-gold text-xs">✦</span>
           <span className="flex-1 block h-px bg-gold/20" />
         </div>
 
         <p className="font-cinzel text-[0.55rem] tracking-[0.3em] text-gold-dim/60">
-          © {toRoman(new Date().getFullYear())} Film Lady Productions · Nothing is reserved
+          © {toRoman(new Date().getFullYear())} Film Lady Productions · All rights reserved
         </p>
       </div>
     </section>
