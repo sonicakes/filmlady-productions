@@ -7,7 +7,7 @@ export default function DecreePanel() {
     <section id="decree-panel" className="relative w-screen min-h-screen md:h-screen flex-shrink-0 flex items-center justify-center bg-void-2 md:overflow-hidden py-20 md:py-0">
 
       {/* Section counter */}
-      <div className="absolute top-10 right-12 font-cinzel text-[0.65rem]
+      <div aria-hidden="true" className="absolute top-10 right-12 font-cinzel text-[0.65rem]
         tracking-[0.25em] text-gold-dim flex flex-col items-center gap-1">
         <CrownIcon className="w-4 h-3" />
         <span>N · УКАЗ</span>
@@ -15,6 +15,7 @@ export default function DecreePanel() {
 
       {/* Decorative Cyrillic words */}
       <span
+        aria-hidden="true"
         className="parallax-word absolute font-cormorant font-light
           pointer-events-none select-none whitespace-nowrap
           text-[8rem] text-gold/[0.03] [-webkit-text-stroke:1px_rgba(201,168,76,0.04)]"
@@ -24,6 +25,7 @@ export default function DecreePanel() {
         МАНИФЕСТ
       </span>
       <span
+        aria-hidden="true"
         className="parallax-word absolute font-cormorant font-light
           pointer-events-none select-none whitespace-nowrap uppercase
           text-[12rem] text-gold/[0.02] [-webkit-text-stroke:1px_rgba(201,168,76,0.03)]"
@@ -55,7 +57,7 @@ export default function DecreePanel() {
           </div>
 
           {/* Large decorative numeral behind the heading */}
-          <span className="absolute -top-12 -left-8 font-cormorant font-light
+          <span aria-hidden="true" className="absolute -top-12 -left-8 font-cormorant font-light
             text-[clamp(5rem,12vw,10rem)] leading-none select-none
             text-void-3 [-webkit-text-stroke:1px_rgba(201,168,76,0.15)]">
             N

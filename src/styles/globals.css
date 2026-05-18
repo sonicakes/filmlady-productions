@@ -117,3 +117,20 @@ html, body {
 
 /* Project link arrow nudge */
 .project-link:hover { gap: 1.2rem; }
+
+/* ─────────────────────────────────────────────────────────────────────
+   Focus visibility — critical because cursor: none hides the pointer
+   for all users. Keyboard users need a clear focus ring.
+   ───────────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #c9a84c;
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* Suppress focus ring for mouse/touch users (browser handles this
+   automatically via :focus-visible, but belt-and-braces for older
+   browsers that don't distinguish mouse vs keyboard focus) */
+:focus:not(:focus-visible) {
+  outline: none;
+}

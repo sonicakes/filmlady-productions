@@ -13,7 +13,9 @@ import type { GatsbySSR } from 'gatsby'
 
 export const onRenderBody: GatsbySSR['onRenderBody'] = ({
   setHeadComponents,
+  setHtmlAttributes,
 }) => {
+  setHtmlAttributes({ lang: 'en' })
   setHeadComponents([
     <link
       key="favicon"

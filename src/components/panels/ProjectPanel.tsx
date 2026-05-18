@@ -327,6 +327,7 @@ function AudioOverlay({
             type="range"
             min={0} max={1} step={0.02}
             value={volume}
+            aria-label="Volume"
             onChange={e => changeVolume(Number(e.target.value))}
             className="flex-1 h-px appearance-none cursor-pointer"
             style={{
@@ -579,7 +580,7 @@ export default function ProjectPanel({ project, isActive }: Props) {
       )}
     >
       {/* Section counter */}
-      <div className="absolute top-10 right-12 font-cinzel text-[0.65rem]
+      <div aria-hidden="true" className="absolute top-10 right-12 font-cinzel text-[0.65rem]
         tracking-[0.25em] text-gold-dim flex flex-col items-center gap-1">
         <CrownIcon className="w-4 h-3" />
         <span>{cyrillicLabel}</span>
@@ -587,6 +588,7 @@ export default function ProjectPanel({ project, isActive }: Props) {
 
       {/* Parallax background words */}
       <span
+        aria-hidden="true"
         className="parallax-word absolute font-cormorant font-light
           pointer-events-none select-none uppercase whitespace-nowrap
           text-[8rem] text-gold/[0.03] [-webkit-text-stroke:1px_rgba(201,168,76,0.04)]"
@@ -597,6 +599,7 @@ export default function ProjectPanel({ project, isActive }: Props) {
       </span>
       {SECONDARY_WORD[index] && (
         <span
+          aria-hidden="true"
           className={`parallax-word absolute font-cormorant font-light pointer-events-none select-none whitespace-nowrap
             ${SECONDARY_WORD[index].size} text-gold/[0.02] [-webkit-text-stroke:1px_rgba(201,168,76,0.03)]`}
           data-speed={SECONDARY_WORD[index].speed}
@@ -619,6 +622,7 @@ export default function ProjectPanel({ project, isActive }: Props) {
 
           {/* Curtain */}
           <div
+            aria-hidden="true"
             className={clsx(
               'absolute inset-0 bg-void origin-top transition-transform duration-700 ease-[cubic-bezier(0.76,0,0.24,1)]',
               'scale-y-0',
@@ -653,7 +657,7 @@ export default function ProjectPanel({ project, isActive }: Props) {
 
         {/* ── Text column ── */}
         <div className={clsx('relative', reversed && 'md:[direction:ltr]')}>
-          <span className="absolute -top-10 -left-4 font-cormorant font-light
+          <span aria-hidden="true" className="absolute -top-10 -left-4 font-cormorant font-light
             text-[6rem] leading-none select-none
             text-gold/[0.07] [-webkit-text-stroke:1px_rgba(201,168,76,0.1)]">
             {String(index).padStart(2, '0')}
@@ -675,7 +679,7 @@ export default function ProjectPanel({ project, isActive }: Props) {
             ))}
           </h2>
 
-          <p className="font-garamond text-[0.85rem] italic text-gold-dim mb-7 tracking-wide">
+          <p className="font-garamond text-[0.85rem] italic text-gold mb-7 tracking-wide">
             {format}
           </p>
 
@@ -730,7 +734,7 @@ export default function ProjectPanel({ project, isActive }: Props) {
 
           {platforms && platforms.length > 0 && (
             <div className="flex items-center gap-4 mt-5">
-              <span className="font-cinzel text-[0.45rem] tracking-[0.3em] text-gold-dim/50">Stream</span>
+              <span aria-hidden="true" className="font-cinzel text-[0.45rem] tracking-[0.3em] text-gold-dim">Stream</span>
               {platforms.map((p) => (
                 <a
                   key={p.label}

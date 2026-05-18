@@ -6,6 +6,7 @@ import React, { forwardRef } from 'react'
 const ProgressBar = forwardRef<HTMLDivElement>((_, ref) => (
   <div
     ref={ref}
+    aria-hidden="true"
     className="fixed bottom-0 left-0 h-[2px] w-0 z-[1000] pointer-events-none
       transition-none"
     style={{
