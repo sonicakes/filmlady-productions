@@ -20,6 +20,7 @@ export interface Project {
   link:         string
   linkLabel:    string                                      // CTA button text
   spotifyLink?: string                                      // optional Spotify URL
+  platforms?:  Array<{ label: string; url: string }>       // listen-on platform links
   cyrillicWord: string                                      // large parallax bg word
   cyrillicLabel: string                                     // section counter e.g. 'II · БЛОГ'
   imageType:    'canvas-blog' | 'canvas-podcast' | 'sim-mock'

@@ -11,7 +11,13 @@ function toRoman(n: number): string {
   return result
 }
 
-const LINKS = [
+const EMAIL_LINK = {
+  label: 'Email',
+  href:  'mailto:kinoroyalepodcast@gmail.com',
+  sub:   'kinoroyalepodcast@gmail.com',
+}
+
+const SOCIAL_LINKS = [
   {
     label: 'Github',
     href:  'https://github.com/sonicakes',
@@ -28,9 +34,9 @@ const LINKS = [
     sub:   '@filmladyroyal',
   },
   {
-    label: 'Contact',
-    href:  'mailto:kinoroyalepodcast@gmail.com',
-    sub:   'kinoroyalepodcast@gmail.com',
+    label: 'Instagram',
+    href:  'https://www.instagram.com/filmladyroyal/',
+    sub:   '@filmladyroyal',
   },
 ]
 
@@ -100,13 +106,29 @@ export default function FooterPanel() {
           <span className="flex-1 block h-px bg-gold/20" />
         </div>
 
+        {/* Email */}
+        <a
+          href={EMAIL_LINK.href}
+          data-hoverable
+          className="flex flex-col items-center gap-1 group"
+        >
+          <span className="font-cinzel text-[0.65rem] tracking-[0.35em] text-gold
+            group-hover:text-parchment transition-colors duration-300">
+            {EMAIL_LINK.label}
+          </span>
+          <span className="font-garamond text-[0.9rem] italic text-gold-dim
+            group-hover:text-parchment-dim transition-colors duration-300">
+            {EMAIL_LINK.sub}
+          </span>
+        </a>
+
         {/* Social links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 w-full">
-          {LINKS.map(({ label, href, sub }) => (
+          {SOCIAL_LINKS.map(({ label, href, sub }) => (
             <a
               key={label}
               href={href}
-              target={href.startsWith('mailto') ? undefined : '_blank'}
+              target="_blank"
               rel="noreferrer"
               data-hoverable
               className="flex flex-col items-center gap-1 group"
@@ -131,7 +153,7 @@ export default function FooterPanel() {
         </div>
 
         <p className="font-cinzel text-[0.55rem] tracking-[0.3em] text-gold-dim/60">
-          © {toRoman(new Date().getFullYear())} Film Lady Productions · Nothing is reserved
+          © {toRoman(new Date().getFullYear())} Film Lady Productions · All rights reserved
         </p>
       </div>
     </section>

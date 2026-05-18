@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import { motion } from 'framer-motion'
 import { StaticImage } from 'gatsby-plugin-image'
+import { SiSpotify, SiApplepodcasts, SiIheartradio } from 'react-icons/si'
+import { MdRssFeed } from 'react-icons/md'
 import type { Project, ProjectSample } from '../../types'
 import CrownIcon from '../layout/CrownIcon'
 
@@ -524,6 +526,19 @@ function TarotCardOverlay({
   )
 }
 
+// ─── Platform icons ───────────────────────────────────────────────────────────
+const PLATFORM_ICONS: Record<string, React.ComponentType<{ size?: number; 'aria-hidden'?: boolean }>> = {
+  'Spotify':        SiSpotify,
+  'Apple Podcasts': SiApplepodcasts,
+  'iHeart':         SiIheartradio,
+  'RSS':            MdRssFeed,
+}
+
+function PlatformIcon({ label }: { label: string }) {
+  const Icon = PLATFORM_ICONS[label]
+  return Icon ? <Icon size={18} aria-hidden /> : null
+}
+
 // ─── ProjectPanel ─────────────────────────────────────────────────────────────
 interface Props {
   project:  Project
@@ -545,7 +560,7 @@ const SECONDARY_WORD: Record<number, { word: string; style: React.CSSProperties;
 export default function ProjectPanel({ project, isActive }: Props) {
   const {
     index, tag, title, titleAccent, format,
-    description, tags, link, linkLabel, spotifyLink,
+    description, tags, link, linkLabel, spotifyLink, platforms,
     cyrillicWord, cyrillicLabel,
     imageType, reversed, sample, sampleLabel,
   } = project
@@ -711,6 +726,25 @@ export default function ProjectPanel({ project, isActive }: Props) {
             >
               {linkLabel}
             </a>
+          )}
+
+          {platforms && platforms.length > 0 && (
+            <div className="flex items-center gap-4 mt-5">
+              <span className="font-cinzel text-[0.45rem] tracking-[0.3em] text-gold-dim/50">Stream</span>
+              {platforms.map((p) => (
+                <a
+                  key={p.label}
+                  href={p.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  data-hoverable
+                  aria-label={p.label}
+                  className="text-gold-dim hover:text-gold transition-colors duration-200"
+                >
+                  <PlatformIcon label={p.label} />
+                </a>
+              ))}
+            </div>
           )}
         </div>
       </div>
