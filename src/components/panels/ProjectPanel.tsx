@@ -574,6 +574,7 @@ export default function ProjectPanel({ project, isActive }: Props) {
 
   return (
     <section
+      id={`project-${project.id}`}
       className={clsx(
         'relative w-screen min-h-screen md:h-screen flex-shrink-0 flex items-center justify-center md:overflow-hidden py-20 md:py-0',
         BG_BY_INDEX[index] ?? 'bg-void',

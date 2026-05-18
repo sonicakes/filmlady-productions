@@ -2,7 +2,11 @@ import React from 'react'
 import portraitSrc from '../../images/film-lady-portrait.jpg'
 import CrownIcon from '../layout/CrownIcon'
 
-export default function DecreePanel() {
+interface Props {
+  onNavigate: (panelIndex: number) => void
+}
+
+export default function DecreePanel({ onNavigate }: Props) {
   return (
     <section id="decree-panel" className="relative w-screen min-h-screen md:h-screen flex-shrink-0 flex items-center justify-center bg-void-2 md:overflow-hidden py-20 md:py-0">
 
@@ -87,21 +91,30 @@ export default function DecreePanel() {
         {/* ── Right: trinity cards ── */}
         <div className="flex flex-col gap-6">
           {[
-            { pillar: 'Pillar I',   title: 'The Cinefile Blog',   desc: 'Written criticism, long-form reviews, the printed word' },
-            { pillar: 'Pillar II',  title: 'Kino Royale Podcast', desc: 'The spoken court, episodic deep dives, audio theatre' },
-            { pillar: 'Pillar III', title: 'The Royal Simulator', desc: 'Interactive horror scenarios, audience as participant' },
-          ].map(({ pillar, title, desc }) => (
-            <div
+            { pillar: 'Pillar I',   title: 'The Cinefile Blog',   desc: 'Written criticism, long-form reviews, the printed word', panelIndex: 2 },
+            { pillar: 'Pillar II',  title: 'Kino Royale Podcast', desc: 'The spoken court, episodic deep dives, audio theatre',   panelIndex: 3 },
+            { pillar: 'Pillar III', title: 'The Royal Simulator', desc: 'Interactive horror scenarios, audience as participant',   panelIndex: 4 },
+          ].map(({ pillar, title, desc, panelIndex }) => (
+            <button
               key={pillar}
               data-hoverable
-              className="trinity-card border-l border-gold-dim pl-6 py-4"
+              onClick={() => onNavigate(panelIndex)}
+              className="trinity-card border-l border-gold-dim pl-6 py-4 text-left w-full
+                group/card transition-colors duration-300"
             >
               <p className="font-cinzel text-[0.55rem] tracking-[0.35em] text-gold-dim mb-1">
                 ✦ &nbsp; {pillar}
               </p>
-              <p className="font-cormorant text-[1.3rem] text-parchment">{title}</p>
+              <div className="flex items-baseline justify-between gap-4">
+                <p className="font-cormorant text-[1.3rem] text-parchment">{title}</p>
+                <span aria-hidden="true" className="font-cinzel text-[0.55rem] tracking-[0.2em]
+                  text-gold-dim opacity-0 group-hover/card:opacity-100
+                  transition-opacity duration-300 flex-shrink-0">
+                  Enter →
+                </span>
+              </div>
               <p className="font-garamond text-[0.9rem] italic text-parchment-dim mt-1">{desc}</p>
-            </div>
+            </button>
           ))}
 
           <div className="gold-rule" />

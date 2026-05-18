@@ -42,7 +42,7 @@ const SOCIAL_LINKS = [
 
 export default function FooterPanel() {
   return (
-    <section className="relative w-screen min-h-screen md:h-screen flex-shrink-0 flex flex-col items-center justify-center bg-void md:overflow-hidden py-20 md:py-0">
+    <section id="footer-panel" className="relative w-screen min-h-screen md:h-screen flex-shrink-0 flex flex-col items-center justify-center bg-void md:overflow-hidden py-20 md:py-0">
 
       {/* Decorative Cyrillic words */}
       <span

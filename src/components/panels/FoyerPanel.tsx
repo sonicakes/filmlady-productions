@@ -86,7 +86,7 @@ export default function FoyerPanel({ onEnter }: Props) {
   }, [])
 
   return (
-    <section className="relative w-screen h-screen flex-shrink-0 flex items-center justify-center bg-void overflow-hidden">
+    <section id="foyer-panel" className="relative w-screen h-screen flex-shrink-0 flex items-center justify-center bg-void overflow-hidden">
 
       {/* Particle canvas — sits behind everything (z-0) */}
       <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 z-0" />
