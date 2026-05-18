@@ -57,7 +57,7 @@ export const projects: Project[] = [
     cyrillicLabel: 'II · ПОДКАСТ',
     imageType:     'canvas-podcast',
     reversed:      true,
-    sampleLabel:   'Hear a Clip',
+    sampleLabel:   'Sample a Clip',
     sample: {
       type:     'audio',
       src:      '/audio/kino-royale-sample.mp3',
